@@ -9,14 +9,20 @@ function toProduct(row: Record<string, unknown>): Product {
         userName: row.user_name as string || 'Anonymous',
         userAvatar: row.user_avatar as string || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.user_id}`,
         name: row.name as string,
+        images: row.images as string[] || [row.image_url as string],
         imageUrl: row.image_url as string,
         price: Number(row.price),
+        originalPrice: row.original_price ? Number(row.original_price) : undefined,
+        currency: row.currency as string || '€',
         storeName: row.store_name as string,
         storeUrl: row.store_url as string || '',
+        affiliateUrl: row.affiliate_url as string | undefined,
+        hasAffiliateLink: !!row.affiliate_url,
         visibility: row.visibility as Visibility,
         groupId: row.group_id as string | undefined,
-        likes: [], // Will be populated separately
-        comments: [], // Will be populated separately
+        likes: [],
+        comments: [],
+        saves: [],
         createdAt: new Date(row.created_at as string)
     };
 }
@@ -27,7 +33,6 @@ export async function getFeedProducts(userId?: string, limit = 20): Promise<Prod
         return getMockProducts();
     }
 
-    // Use the view with user details
     const { data, error } = await supabase
         .from('products_with_details')
         .select('*')
@@ -40,7 +45,6 @@ export async function getFeedProducts(userId?: string, limit = 20): Promise<Prod
         return getMockProducts();
     }
 
-    // Get likes and comments for each product
     const products = await Promise.all(data.map(async (row) => {
         const product = toProduct(row);
         product.likes = await getProductLikes(product.id);
@@ -91,33 +95,36 @@ async function getProductLikes(productId: string): Promise<string[]> {
 async function getProductComments(productId: string): Promise<Comment[]> {
     const { data, error } = await supabase
         .from('comments')
-        .select(`
-            id,
-            text,
-            created_at,
-            user_id,
-            profiles!inner(display_name, avatar_url)
-        `)
+        .select('id, text, created_at, user_id')
         .eq('product_id', productId)
         .order('created_at', { ascending: true });
 
     if (error) return [];
 
-    return data.map((row: Record<string, unknown>) => {
-        const profiles = row.profiles as { display_name: string; avatar_url: string };
-        return {
-            id: row.id as string,
-            userId: row.user_id as string,
-            userName: profiles?.display_name || 'Anonymous',
-            userAvatar: profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.user_id}`,
-            text: row.text as string,
-            createdAt: new Date(row.created_at as string)
-        };
-    });
+    // Fetch profiles for comments
+    const comments: Comment[] = [];
+    for (const row of data) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', row.user_id)
+            .single();
+
+        comments.push({
+            id: row.id,
+            userId: row.user_id,
+            userName: profile?.display_name || 'Anonymous',
+            userAvatar: profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.user_id}`,
+            text: row.text,
+            createdAt: new Date(row.created_at)
+        });
+    }
+
+    return comments;
 }
 
 // Create a new product
-export async function createProduct(product: Omit<Product, 'id' | 'likes' | 'comments' | 'createdAt'>): Promise<Product> {
+export async function createProduct(product: Omit<Product, 'id' | 'likes' | 'comments' | 'saves' | 'createdAt'>): Promise<Product> {
     if (!isSupabaseConfigured) {
         throw new Error('Supabase not configured');
     }
@@ -127,10 +134,14 @@ export async function createProduct(product: Omit<Product, 'id' | 'likes' | 'com
         .insert({
             user_id: product.userId,
             name: product.name,
+            images: product.images,
             image_url: product.imageUrl,
             price: product.price,
+            original_price: product.originalPrice,
+            currency: product.currency,
             store_name: product.storeName,
             store_url: product.storeUrl,
+            affiliate_url: product.affiliateUrl,
             visibility: product.visibility,
             group_id: product.groupId
         })
@@ -144,7 +155,8 @@ export async function createProduct(product: Omit<Product, 'id' | 'likes' | 'com
         userName: product.userName,
         userAvatar: product.userAvatar,
         likes: [],
-        comments: []
+        comments: [],
+        saves: []
     };
 }
 
@@ -154,10 +166,13 @@ export async function updateProduct(productId: string, updates: Partial<Product>
 
     const dbUpdates: Record<string, unknown> = {};
     if (updates.name) dbUpdates.name = updates.name;
+    if (updates.images) dbUpdates.images = updates.images;
     if (updates.imageUrl) dbUpdates.image_url = updates.imageUrl;
     if (updates.price !== undefined) dbUpdates.price = updates.price;
+    if (updates.originalPrice !== undefined) dbUpdates.original_price = updates.originalPrice;
     if (updates.storeName) dbUpdates.store_name = updates.storeName;
     if (updates.storeUrl) dbUpdates.store_url = updates.storeUrl;
+    if (updates.affiliateUrl) dbUpdates.affiliate_url = updates.affiliateUrl;
     if (updates.visibility) dbUpdates.visibility = updates.visibility;
     if (updates.groupId) dbUpdates.group_id = updates.groupId;
 
@@ -185,7 +200,6 @@ export async function deleteProduct(productId: string): Promise<void> {
 export async function toggleLike(productId: string, userId: string): Promise<boolean> {
     if (!isSupabaseConfigured) return true;
 
-    // Check if already liked
     const { data: existing } = await supabase
         .from('likes')
         .select('*')
@@ -194,7 +208,6 @@ export async function toggleLike(productId: string, userId: string): Promise<boo
         .single();
 
     if (existing) {
-        // Unlike
         await supabase
             .from('likes')
             .delete()
@@ -202,7 +215,6 @@ export async function toggleLike(productId: string, userId: string): Promise<boo
             .eq('user_id', userId);
         return false;
     } else {
-        // Like
         await supabase
             .from('likes')
             .insert({ product_id: productId, user_id: userId });
@@ -228,7 +240,6 @@ export async function addComment(productId: string, userId: string, text: string
 
     if (error) throw error;
 
-    // Fetch profile separately to avoid complex join types
     const { data: profile } = await supabase
         .from('profiles')
         .select('display_name, avatar_url')
@@ -255,13 +266,18 @@ function getMockProducts(): Product[] {
             userName: 'Sarah Miller',
             userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
             name: 'Nike Air Max 90',
+            images: ['https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&q=80'],
             imageUrl: 'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&q=80',
             price: 139.99,
+            currency: '€',
             storeName: 'Nike',
             storeUrl: 'https://nike.com',
+            hasAffiliateLink: true,
+            affiliateUrl: 'https://nike.com?ref=cartconnect',
             visibility: 'public',
             likes: ['user1', 'user2'],
             comments: [],
+            saves: [],
             createdAt: new Date(now.getTime() - 3600000)
         },
         {
@@ -270,13 +286,17 @@ function getMockProducts(): Product[] {
             userName: 'Max Schmidt',
             userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=max',
             name: 'Apple AirPods Pro',
+            images: ['https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&q=80'],
             imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&q=80',
             price: 279.00,
+            currency: '€',
             storeName: 'Apple',
             storeUrl: 'https://apple.com',
+            hasAffiliateLink: false,
             visibility: 'public',
             likes: ['user1'],
             comments: [],
+            saves: [],
             createdAt: new Date(now.getTime() - 7200000)
         },
         {
@@ -285,13 +305,18 @@ function getMockProducts(): Product[] {
             userName: 'Lisa Weber',
             userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisa',
             name: 'Minimalist Watch',
+            images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80'],
             imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80',
             price: 189.00,
+            currency: '€',
             storeName: 'Nordstrom',
             storeUrl: 'https://nordstrom.com',
+            hasAffiliateLink: true,
+            affiliateUrl: 'https://nordstrom.com?ref=cartconnect',
             visibility: 'public',
             likes: [],
             comments: [],
+            saves: [],
             createdAt: new Date(now.getTime() - 14400000)
         }
     ];

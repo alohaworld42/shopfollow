@@ -1,5 +1,5 @@
 import { Check, X, ExternalLink } from 'lucide-react';
-import { Card, Badge, Button } from '../common';
+import { Card, Badge } from '../common';
 import type { StagingOrder } from '../../types';
 
 interface InboxItemProps {
@@ -11,64 +11,64 @@ interface InboxItemProps {
 const InboxItem = ({ order, onAccept, onReject }: InboxItemProps) => {
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-        if (seconds < 60) return 'Gerade eben';
-        if (seconds < 3600) return `vor ${Math.floor(seconds / 60)} Min`;
-        if (seconds < 86400) return `vor ${Math.floor(seconds / 3600)} Std`;
-        return `vor ${Math.floor(seconds / 86400)} Tagen`;
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
     };
+
+    // Get primary image from images array
+    const primaryImage = order.rawData.images?.[0] || 'https://via.placeholder.com/200';
 
     return (
         <Card glass padding="none" className="overflow-hidden animate-slide-up">
-            <div className="flex gap-4 p-4">
+            <div className="inbox-item">
                 {/* Product Image */}
-                <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden">
-                    <img
-                        src={order.rawData.imageUrl}
-                        alt={order.rawData.name}
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-1 right-1">
-                        <Badge variant="price" size="sm">
-                            €{order.rawData.price.toFixed(0)}
-                        </Badge>
-                    </div>
-                </div>
+                <img
+                    src={primaryImage}
+                    alt={order.rawData.name}
+                    className="inbox-item-image"
+                />
 
                 {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white truncate">{order.rawData.name}</p>
-                    <p className="text-sm text-white/50">{order.rawData.storeName}</p>
+                <div className="inbox-item-content">
+                    <p className="inbox-item-title">{order.rawData.name}</p>
+                    <p className="inbox-item-store">{order.rawData.storeName}</p>
+                    <p className="inbox-item-price">
+                        {order.rawData.currency || '€'}{order.rawData.price.toFixed(2)}
+                    </p>
                     <p className="text-xs text-white/30 mt-1">{timeAgo(order.createdAt)}</p>
 
-                    <a
-                        href={order.rawData.storeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary-400 hover:text-primary-300 mt-2"
-                    >
-                        <ExternalLink className="w-3 h-3" />
-                        Im Shop ansehen
-                    </a>
+                    {order.rawData.storeUrl && (
+                        <a
+                            href={order.rawData.storeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary-400 hover:text-primary-300 mt-2"
+                        >
+                            <ExternalLink className="w-3 h-3" />
+                            View in store
+                        </a>
+                    )}
                 </div>
-            </div>
 
-            {/* Actions */}
-            <div className="flex border-t border-white/10">
-                <button
-                    onClick={() => onReject(order.id)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 text-red-400 hover:bg-red-500/10 transition-colors"
-                >
-                    <X className="w-5 h-5" />
-                    <span className="text-sm font-medium">Ablehnen</span>
-                </button>
-                <div className="w-px bg-white/10" />
-                <button
-                    onClick={() => onAccept(order.id)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 text-green-400 hover:bg-green-500/10 transition-colors"
-                >
-                    <Check className="w-5 h-5" />
-                    <span className="text-sm font-medium">Posten</span>
-                </button>
+                {/* Actions */}
+                <div className="inbox-item-actions">
+                    <button
+                        onClick={() => onAccept(order.id)}
+                        className="inbox-btn inbox-btn-accept"
+                        title="Accept and post"
+                    >
+                        <Check className="w-5 h-5" />
+                    </button>
+                    <button
+                        onClick={() => onReject(order.id)}
+                        className="inbox-btn inbox-btn-reject"
+                        title="Reject"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
         </Card>
     );

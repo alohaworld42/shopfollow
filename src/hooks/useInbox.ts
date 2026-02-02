@@ -4,17 +4,21 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import * as inboxService from '../services/inboxService';
 import type { StagingOrder } from '../types';
 
-// Demo staging orders
+// Demo staging orders with new type structure
 const DEMO_ORDERS: StagingOrder[] = [
     {
         id: 'order-1',
         userId: 'demo-user-1',
+        source: 'scraper',
         rawData: {
-            name: 'Wireless Charging Pad',
+            name: 'Wireless Charging Pad Pro',
             price: 39.99,
+            currency: '€',
             storeName: 'Amazon',
             storeUrl: 'https://amazon.com',
-            imageUrl: 'https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80'
+            images: [
+                'https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80'
+            ]
         },
         status: 'pending',
         createdAt: new Date(Date.now() - 1000 * 60 * 5)
@@ -22,12 +26,19 @@ const DEMO_ORDERS: StagingOrder[] = [
     {
         id: 'order-2',
         userId: 'demo-user-1',
+        source: 'browser',
         rawData: {
             name: 'Ceramic Coffee Mug Set',
+            description: 'Handmade artisan mugs',
             price: 45.00,
+            currency: '€',
             storeName: 'Etsy',
             storeUrl: 'https://etsy.com',
-            imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80'
+            images: [
+                'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80',
+                'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=800&q=80'
+            ],
+            category: 'Home & Living'
         },
         status: 'pending',
         createdAt: new Date(Date.now() - 1000 * 60 * 30)
@@ -60,7 +71,7 @@ export const useInbox = () => {
                 setUnreadCount(data.length);
             }
         } catch {
-            setError('Fehler beim Laden der Inbox');
+            setError('Error loading inbox');
         } finally {
             setLoading(false);
         }
@@ -78,70 +89,21 @@ export const useInbox = () => {
         }
 
         return true;
-    }, [isDemoMode, user]);
+    }, [user, isDemoMode]);
 
     // Reject order
     const rejectOrder = useCallback(async (orderId: string) => {
+        if (!user) return false;
+
         setOrders(prev => prev.filter(o => o.id !== orderId));
         setUnreadCount(prev => Math.max(0, prev - 1));
 
         if (!isDemoMode) {
             await inboxService.rejectStagingOrder(orderId);
         }
-    }, [isDemoMode]);
 
-    // Simulate new incoming order (for demo)
-    const simulateNewOrder = useCallback(() => {
-        const sampleProducts = [
-            {
-                name: 'Vintage Vinyl Record',
-                price: 25.00,
-                storeName: 'Discogs',
-                storeUrl: 'https://discogs.com',
-                imageUrl: 'https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=800&q=80'
-            },
-            {
-                name: 'Artisan Chocolate Box',
-                price: 55.00,
-                storeName: 'Godiva',
-                storeUrl: 'https://godiva.com',
-                imageUrl: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=800&q=80'
-            },
-            {
-                name: 'Smart LED Light Strip',
-                price: 29.99,
-                storeName: 'Phillips',
-                storeUrl: 'https://phillips.com',
-                imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'
-            }
-        ];
-
-        const randomProduct = sampleProducts[Math.floor(Math.random() * sampleProducts.length)];
-        const newOrder: StagingOrder = {
-            id: crypto.randomUUID(),
-            userId: user?.uid || 'demo-user-1',
-            rawData: randomProduct,
-            status: 'pending',
-            createdAt: new Date()
-        };
-
-        setOrders(prev => [newOrder, ...prev]);
-        setUnreadCount(prev => prev + 1);
-    }, [user]);
-
-    // Start background sync simulation
-    useEffect(() => {
-        if (!user || !isDemoMode) return;
-
-        // Simulate incoming order every 45-90 seconds
-        const interval = setInterval(() => {
-            if (Math.random() > 0.5) { // 50% chance
-                simulateNewOrder();
-            }
-        }, 45000 + Math.random() * 45000);
-
-        return () => clearInterval(interval);
-    }, [user, isDemoMode, simulateNewOrder]);
+        return true;
+    }, [user, isDemoMode]);
 
     // Subscribe to real-time updates
     useEffect(() => {
@@ -155,7 +117,7 @@ export const useInbox = () => {
         return () => unsubscribe();
     }, [user, isDemoMode]);
 
-    // Initial fetch
+    // Initial load
     useEffect(() => {
         fetchOrders();
     }, [fetchOrders]);
@@ -167,8 +129,7 @@ export const useInbox = () => {
         unreadCount,
         fetchOrders,
         acceptOrder,
-        rejectOrder,
-        simulateNewOrder
+        rejectOrder
     };
 };
 

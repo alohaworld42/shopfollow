@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, ExternalLink } from 'lucide-react';
-import { Avatar, Badge } from '../common';
+import { Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Avatar } from '../common';
 import type { Product } from '../../types';
 
 interface FeedCardProps {
@@ -8,133 +8,196 @@ interface FeedCardProps {
     onLike: (productId: string) => void;
     onComment: () => void;
     onClick: () => void;
+    currentUserId?: string;
 }
 
-const FeedCard = ({ product, onLike, onComment, onClick }: FeedCardProps) => {
-    const [isLiked, setIsLiked] = useState(false);
+const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCardProps) => {
+    const [imageIndex, setImageIndex] = useState(0);
+    const [isSaved, setIsSaved] = useState(false);
     const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+
+    // Get all images (support both single imageUrl and images array)
+    const images = product.images?.length > 0 ? product.images : [product.imageUrl];
+    const hasMultipleImages = images.length > 1;
+
+    const isLiked = currentUserId ? product.likes.includes(currentUserId) : false;
 
     const handleDoubleTap = () => {
         if (!isLiked) {
-            setIsLiked(true);
             onLike(product.id);
         }
         setShowHeartAnimation(true);
         setTimeout(() => setShowHeartAnimation(false), 800);
     };
 
-    const handleLikeClick = () => {
-        setIsLiked(!isLiked);
+    const handleLikeClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         onLike(product.id);
+    };
+
+    const handleSaveClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsSaved(!isSaved);
+    };
+
+    const handlePrevImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setImageIndex(prev => prev > 0 ? prev - 1 : images.length - 1);
+    };
+
+    const handleNextImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setImageIndex(prev => prev < images.length - 1 ? prev + 1 : 0);
+    };
+
+    const handleShopNow = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const url = product.affiliateUrl || product.storeUrl;
+        if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
     };
 
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-        if (seconds < 60) return 'Gerade eben';
-        if (seconds < 3600) return `vor ${Math.floor(seconds / 60)} Min`;
-        if (seconds < 86400) return `vor ${Math.floor(seconds / 3600)} Std`;
-        return `vor ${Math.floor(seconds / 86400)} Tagen`;
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+        if (seconds < 604800) return `${Math.floor(seconds / 86400)}d`;
+        return `${Math.floor(seconds / 604800)}w`;
+    };
+
+    const formatPrice = (price: number, currency = '€') => {
+        return `${currency}${price.toFixed(2)}`;
     };
 
     return (
-        <article className="feed-card animate-fade-in">
-            {/* Header */}
-            <div className="flex items-center gap-3 p-4">
-                <Avatar
-                    src={product.userAvatar}
-                    alt={product.userName}
-                    size="md"
-                />
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white truncate">
-                        {product.userName}
-                    </p>
-                    <p className="text-sm text-white/50">{product.storeName}</p>
+        <article className="feed-card">
+            {/* User Header */}
+            <div className="feed-card-header">
+                <div className="feed-card-user">
+                    <Avatar
+                        src={product.userAvatar}
+                        alt={product.userName}
+                        size="md"
+                    />
+                    <div>
+                        <p className="feed-card-user-name">{product.userName}</p>
+                        <p className="feed-card-time">{timeAgo(product.createdAt)}</p>
+                    </div>
                 </div>
-                <span className="text-xs text-white/40">{timeAgo(product.createdAt)}</span>
             </div>
 
-            {/* Image */}
+            {/* Image Carousel */}
             <div
-                className="relative cursor-pointer bg-dark-800"
+                className="feed-card-images"
                 onDoubleClick={handleDoubleTap}
                 onClick={onClick}
             >
-                <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="feed-card-image"
-                    loading="lazy"
-                />
-
-                {/* Price Badge */}
-                <div className="absolute top-4 right-4">
-                    <Badge variant="price">
-                        €{product.price.toFixed(0)}
-                    </Badge>
+                <div
+                    className="feed-card-images-track"
+                    style={{ transform: `translateX(-${imageIndex * 100}%)` }}
+                >
+                    {images.map((img, idx) => (
+                        <img
+                            key={idx}
+                            src={img}
+                            alt={`${product.name} ${idx + 1}`}
+                            className="feed-card-image"
+                            loading="lazy"
+                        />
+                    ))}
                 </div>
+
+                {/* Image Navigation */}
+                {hasMultipleImages && (
+                    <>
+                        <button
+                            className="feed-card-image-nav prev"
+                            onClick={handlePrevImage}
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <button
+                            className="feed-card-image-nav next"
+                            onClick={handleNextImage}
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                        <div className="feed-card-image-indicators">
+                            {images.map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`feed-card-image-dot ${idx === imageIndex ? 'active' : ''}`}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
 
                 {/* Heart Animation */}
                 {showHeartAnimation && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <Heart
-                            className="w-24 h-24 text-red-500 fill-current animate-heart-beat drop-shadow-lg"
-                        />
+                    <div className="feed-card-heart-animation">
+                        <Heart size={80} fill="white" color="white" />
                     </div>
                 )}
             </div>
 
-            {/* Actions */}
+            {/* Content */}
             <div className="feed-card-content">
-                <div className="flex items-center gap-1 mb-3">
-                    <button
-                        onClick={handleLikeClick}
-                        className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors"
-                    >
-                        <Heart
-                            className={`w-6 h-6 transition-all ${isLiked ? 'text-red-500 fill-current scale-110' : 'text-white'
-                                }`}
-                        />
-                    </button>
-                    <button
-                        onClick={onComment}
-                        className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                    >
-                        <MessageCircle className="w-6 h-6 text-white" />
-                    </button>
-                    <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                        <Share2 className="w-6 h-6 text-white" />
-                    </button>
+                {/* Product Info */}
+                <h3 className="feed-card-title">{product.name}</h3>
+                <p className="feed-card-store">
+                    {product.storeName}
+                    {product.hasAffiliateLink && (
+                        <span className="feed-card-affiliate-badge">Affiliate</span>
+                    )}
+                </p>
 
-                    <a
-                        href={product.storeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-auto p-2 rounded-full hover:bg-white/10 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <ExternalLink className="w-5 h-5 text-white/50" />
-                    </a>
+                {/* Price */}
+                <div className="feed-card-price">
+                    <span className="feed-card-price-current">
+                        {formatPrice(product.price, product.currency)}
+                    </span>
+                    {product.originalPrice && product.originalPrice > product.price && (
+                        <span className="feed-card-price-original">
+                            {formatPrice(product.originalPrice, product.currency)}
+                        </span>
+                    )}
                 </div>
 
-                {/* Likes & Caption */}
-                <p className="font-semibold text-white mb-1">
-                    {product.likes.length} Gefällt mir
-                </p>
-                <p className="text-white/80 leading-relaxed">
-                    <span className="font-semibold text-white">{product.userName}</span>
-                    {' '}
-                    {product.name}
-                </p>
-
-                {product.comments.length > 0 && (
+                {/* Actions */}
+                <div className="feed-card-actions">
                     <button
-                        onClick={onComment}
-                        className="text-white/40 text-sm mt-2 hover:text-white/60 transition-colors"
+                        onClick={handleLikeClick}
+                        className={`feed-card-action ${isLiked ? 'liked' : ''}`}
                     >
-                        Alle {product.comments.length} Kommentare anzeigen
+                        <Heart size={22} fill={isLiked ? 'currentColor' : 'none'} />
+                        <span>{product.likes.length}</span>
                     </button>
-                )}
+                    <button onClick={onComment} className="feed-card-action">
+                        <MessageCircle size={22} />
+                        <span>{product.comments.length}</span>
+                    </button>
+                    <button className="feed-card-action">
+                        <Share2 size={20} />
+                    </button>
+                    <button
+                        onClick={handleSaveClick}
+                        className={`feed-card-action ${isSaved ? 'saved' : ''}`}
+                    >
+                        <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+                    </button>
+
+                    {/* Shop Now Button */}
+                    <button
+                        onClick={handleShopNow}
+                        className="feed-card-shop-btn"
+                    >
+                        <ExternalLink size={16} />
+                        Shop Now
+                    </button>
+                </div>
             </div>
         </article>
     );

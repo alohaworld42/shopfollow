@@ -5,7 +5,7 @@ import { Card, Button, SkeletonList } from '../components/common';
 import { useInbox, useProducts, useToast } from '../hooks';
 
 const Inbox = () => {
-    const { orders, loading, fetchOrders, acceptOrder, rejectOrder, simulateNewOrder } = useInbox();
+    const { orders, loading, fetchOrders, acceptOrder, rejectOrder } = useInbox();
     const { createProduct } = useProducts();
     const { showToast } = useToast();
 
@@ -17,10 +17,10 @@ const Inbox = () => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
 
-        // Create product from order
+        // Create product from order using new images array format
         await createProduct({
             name: order.rawData.name,
-            imageUrl: order.rawData.imageUrl,
+            images: order.rawData.images,
             price: order.rawData.price,
             storeName: order.rawData.storeName,
             storeUrl: order.rawData.storeUrl,
@@ -28,17 +28,12 @@ const Inbox = () => {
         });
 
         await acceptOrder(orderId);
-        showToast('success', 'Produkt wurde gepostet! 🎉');
+        showToast('success', 'Product posted! 🎉');
     };
 
     const handleReject = async (orderId: string) => {
         await rejectOrder(orderId);
-        showToast('info', 'Produkt abgelehnt');
-    };
-
-    const handleSimulate = () => {
-        simulateNewOrder();
-        showToast('info', 'Neues Produkt simuliert! 📦');
+        showToast('info', 'Product rejected');
     };
 
     return (
@@ -51,19 +46,19 @@ const Inbox = () => {
                         Inbox
                     </h1>
                     <p className="text-sm text-white/50 mt-1">
-                        Automatisch erkannte Einkäufe
+                        Auto-detected purchases
                     </p>
                 </div>
 
-                {/* Simulate Button (for demo) */}
+                {/* Refresh Button */}
                 <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleSimulate}
+                    onClick={() => fetchOrders()}
                     className="text-white/50"
                 >
                     <RefreshCw className="w-4 h-4" />
-                    Simulieren
+                    Refresh
                 </Button>
             </div>
 
@@ -75,8 +70,8 @@ const Inbox = () => {
                     </div>
                     <div>
                         <p className="text-sm text-white/70">
-                            Diese Items wurden automatisch von deinen verknüpften Shops erkannt.
-                            Bestätige sie, um sie in deinem Profil zu teilen.
+                            These items were automatically detected from your linked stores or browser extension.
+                            Accept them to share on your profile.
                         </p>
                     </div>
                 </div>
@@ -89,9 +84,9 @@ const Inbox = () => {
                 ) : orders.length === 0 ? (
                     <Card glass className="text-center py-12">
                         <InboxIcon className="w-12 h-12 text-white/20 mx-auto mb-3" />
-                        <p className="text-white/50">Keine neuen Einkäufe</p>
+                        <p className="text-white/50">No new purchases</p>
                         <p className="text-sm text-white/30 mt-1">
-                            Neue Items erscheinen hier automatisch
+                            New items will appear here automatically
                         </p>
                     </Card>
                 ) : (
@@ -109,7 +104,7 @@ const Inbox = () => {
             {/* Pending Count */}
             {orders.length > 0 && (
                 <p className="text-center text-sm text-white/40">
-                    {orders.length} {orders.length === 1 ? 'Item' : 'Items'} warten auf Bestätigung
+                    {orders.length} {orders.length === 1 ? 'item' : 'items'} awaiting confirmation
                 </p>
             )}
         </div>

@@ -36,7 +36,7 @@ const Dashboard = () => {
 
     const handleImportProduct = async (data: {
         name: string;
-        imageUrl: string;
+        images: string[];
         price: number;
         storeName: string;
         storeUrl: string;
@@ -44,7 +44,7 @@ const Dashboard = () => {
         groupId?: string;
     }) => {
         await createProduct(data);
-        showToast('success', 'Produkt hinzugefügt!');
+        showToast('success', 'Product added!');
         if (user) {
             fetchUserProducts(user.uid);
         }

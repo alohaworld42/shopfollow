@@ -1,17 +1,27 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import type { StagingOrder, OrderStatus } from '../types';
+import type { StagingOrder, OrderStatus, OrderSource } from '../types';
 
 // Convert DB row to StagingOrder
 function toStagingOrder(row: Record<string, unknown>): StagingOrder {
+    // Handle images - can be array or extract from single image
+    const imageUrl = row.product_image_url as string;
+    const images = row.images as string[] || (imageUrl ? [imageUrl] : []);
+
     return {
         id: row.id as string,
         userId: row.user_id as string,
+        source: (row.source as OrderSource) || 'manual',
         rawData: {
             name: row.product_name as string,
+            description: row.product_description as string | undefined,
             price: Number(row.product_price),
+            originalPrice: row.original_price ? Number(row.original_price) : undefined,
+            currency: row.currency as string || '€',
             storeName: row.store_name as string,
             storeUrl: row.store_url as string || '',
-            imageUrl: row.product_image_url as string
+            images: images,
+            category: row.category as string | undefined,
+            brand: row.brand as string | undefined
         },
         status: row.status as OrderStatus,
         createdAt: new Date(row.created_at as string)
@@ -43,7 +53,6 @@ export async function getStagingOrders(userId: string): Promise<StagingOrder[]> 
 export async function acceptStagingOrder(orderId: string, userId: string, visibility: 'public' | 'private' | 'group' = 'public'): Promise<void> {
     if (!isSupabaseConfigured) return;
 
-    // Get the staging order
     const { data: order, error: fetchError } = await supabase
         .from('staging_orders')
         .select('*')
@@ -58,8 +67,11 @@ export async function acceptStagingOrder(orderId: string, userId: string, visibi
         .insert({
             user_id: userId,
             name: order.product_name,
+            images: order.images || [order.product_image_url],
             image_url: order.product_image_url,
             price: order.product_price,
+            original_price: order.original_price,
+            currency: order.currency || '€',
             store_name: order.store_name,
             store_url: order.store_url,
             visibility
@@ -105,7 +117,6 @@ export function subscribeToStagingOrders(userId: string, onUpdate: (orders: Stag
                 filter: `user_id=eq.${userId}`
             },
             async () => {
-                // Refetch all pending orders on any change
                 const orders = await getStagingOrders(userId);
                 onUpdate(orders);
             }
@@ -138,12 +149,14 @@ function getMockStagingOrders(): StagingOrder[] {
         {
             id: 'mock-1',
             userId: 'demo-user',
+            source: 'scraper',
             rawData: {
                 name: 'Wireless Charging Pad',
                 price: 39.99,
+                currency: '€',
                 storeName: 'Amazon',
                 storeUrl: 'https://amazon.com',
-                imageUrl: 'https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80'
+                images: ['https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80']
             },
             status: 'pending',
             createdAt: new Date(now.getTime() - 1800000)
@@ -151,12 +164,17 @@ function getMockStagingOrders(): StagingOrder[] {
         {
             id: 'mock-2',
             userId: 'demo-user',
+            source: 'browser',
             rawData: {
                 name: 'Sustainable Water Bottle',
                 price: 34.00,
+                currency: '€',
                 storeName: 'Etsy',
                 storeUrl: 'https://etsy.com',
-                imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&q=80'
+                images: [
+                    'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&q=80',
+                    'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=800&q=80'
+                ]
             },
             status: 'pending',
             createdAt: new Date(now.getTime() - 3600000)
@@ -184,6 +202,7 @@ export async function simulateIncomingOrder(userId: string): Promise<string> {
             user_id: userId,
             source: 'demo',
             product_name: random.name,
+            images: [random.image],
             product_image_url: random.image,
             product_price: random.price,
             store_name: random.store,

@@ -1,21 +1,21 @@
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Users, Lock, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Users, Coins, ChevronRight, Sparkles } from 'lucide-react';
 
 const features = [
     {
         icon: ShoppingBag,
-        title: 'Share Your Finds',
-        description: 'Show off your purchases with friends and followers'
+        title: 'Share Purchases',
+        description: 'Post your shopping finds and inspire your friends with your style'
     },
     {
         icon: Users,
         title: 'Discover Together',
-        description: 'See what your network is buying and get inspired'
+        description: 'See what your network is buying and find new products you\'ll love'
     },
     {
-        icon: Lock,
-        title: 'Privacy Control',
-        description: 'Choose who sees your purchases - public, private, or groups'
+        icon: Coins,
+        title: 'Earn Rewards',
+        description: 'Get rewarded when friends buy through your affiliate links'
     }
 ];
 
@@ -24,16 +24,22 @@ export const Welcome = () => {
 
     return (
         <div className="welcome-page">
+            {/* Decorative elements */}
+            <div className="welcome-glow" />
+
             {/* Hero Section */}
             <div className="welcome-hero">
                 <div className="welcome-logo">
                     <div className="welcome-logo-icon">
-                        <ShoppingBag size={40} />
+                        <ShoppingBag size={44} strokeWidth={1.5} />
                     </div>
                 </div>
                 <h1 className="welcome-title">CartConnect</h1>
                 <p className="welcome-subtitle">
-                    The social network for sharing your shopping discoveries
+                    Share Your Style, Earn Together
+                </p>
+                <p className="welcome-tagline">
+                    The social way to shop. Share your finds, discover what friends are buying, and earn rewards together.
                 </p>
             </div>
 
@@ -42,7 +48,7 @@ export const Welcome = () => {
                 {features.map((feature, index) => (
                     <div key={index} className="welcome-feature">
                         <div className="welcome-feature-icon">
-                            <feature.icon size={24} />
+                            <feature.icon size={26} strokeWidth={1.5} />
                         </div>
                         <div className="welcome-feature-text">
                             <h3>{feature.title}</h3>
@@ -50,6 +56,14 @@ export const Welcome = () => {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Stats/Social Proof */}
+            <div className="welcome-stats">
+                <div className="welcome-stat">
+                    <Sparkles size={16} />
+                    <span>Join thousands sharing their style</span>
+                </div>
             </div>
 
             {/* CTA Buttons */}
@@ -65,7 +79,7 @@ export const Welcome = () => {
                     className="welcome-btn welcome-btn-secondary"
                     onClick={() => navigate('/login')}
                 >
-                    I already have an account
+                    Sign In
                 </button>
             </div>
 
@@ -74,7 +88,7 @@ export const Welcome = () => {
                 className="welcome-demo-link"
                 onClick={() => navigate('/demo')}
             >
-                Try Demo Mode
+                Try Demo Mode →
             </button>
         </div>
     );

@@ -4,10 +4,13 @@ export interface User {
     email: string;
     displayName: string;
     avatarUrl: string;
+    bio?: string;
     score: number;
+    totalEarnings?: number;
     following: string[];
     followers: string[];
     groups: Group[];
+    affiliateNetworks?: string[];
     createdAt: Date;
 }
 
@@ -35,32 +38,90 @@ export interface Product {
     userName: string;
     userAvatar: string;
     name: string;
+    description?: string;
+    // Support multiple images from scraping
+    images: string[];
+    // Backward compatibility - primary image
     imageUrl: string;
     price: number;
+    originalPrice?: number;
+    currency?: string;
     storeName: string;
     storeUrl: string;
+    // Affiliate link tracking
+    affiliateUrl?: string;
+    affiliateNetwork?: string;
+    hasAffiliateLink: boolean;
+    // Earnings from this product
+    clickCount?: number;
+    purchaseCount?: number;
+    earnings?: number;
+    // Metadata
+    category?: string;
+    brand?: string;
     visibility: Visibility;
     groupId?: string;
     likes: string[];
     comments: Comment[];
+    saves: string[];
     createdAt: Date;
+}
+
+// Scraped Product Data (from URL scraper)
+export interface ScrapedProduct {
+    title: string;
+    description?: string;
+    images: string[];
+    price: number;
+    originalPrice?: number;
+    currency: string;
+    storeName: string;
+    storeUrl: string;
+    category?: string;
+    brand?: string;
 }
 
 // Staging Order (Inbox) Types
 export type OrderStatus = 'pending' | 'accepted' | 'rejected';
+export type OrderSource = 'shopify' | 'woocommerce' | 'browser' | 'scraper' | 'manual';
 
 export interface StagingOrder {
     id: string;
     userId: string;
+    source: OrderSource;
     rawData: {
         name: string;
+        description?: string;
         price: number;
+        originalPrice?: number;
+        currency?: string;
         storeName: string;
         storeUrl: string;
-        imageUrl: string;
+        images: string[];
+        category?: string;
+        brand?: string;
     };
     status: OrderStatus;
     createdAt: Date;
+}
+
+// Affiliate Types
+export interface AffiliateClick {
+    id: string;
+    productId: string;
+    userId: string;
+    clickedBy: string;
+    clickedAt: Date;
+    converted: boolean;
+    earnings?: number;
+}
+
+export interface EarningsSummary {
+    totalClicks: number;
+    totalPurchases: number;
+    totalEarnings: number;
+    pendingEarnings: number;
+    paidEarnings: number;
 }
 
 // UI Types

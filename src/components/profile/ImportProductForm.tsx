@@ -8,7 +8,7 @@ interface ImportProductFormProps {
     onClose: () => void;
     onSubmit: (data: {
         name: string;
-        imageUrl: string;
+        images: string[];
         price: number;
         storeName: string;
         storeUrl: string;
@@ -36,7 +36,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
         try {
             await onSubmit({
                 name,
-                imageUrl,
+                images: [imageUrl], // Convert single URL to array
                 price: parseFloat(price),
                 storeName,
                 storeUrl,
@@ -58,17 +58,17 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Produkt hinzufügen">
+        <Modal isOpen={isOpen} onClose={onClose} title="Add Product">
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 {/* Product Name */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Produktname</label>
+                    <label className="text-sm font-medium text-white/70">Product Name</label>
                     <div className="relative">
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="z.B. Nike Air Max 90"
+                            placeholder="e.g. Nike Air Max 90"
                             className="w-full p-3 pl-10 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
                             required
                         />
@@ -78,7 +78,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
                 {/* Image URL */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Bild-URL</label>
+                    <label className="text-sm font-medium text-white/70">Image URL</label>
                     <div className="relative">
                         <input
                             type="url"
@@ -103,7 +103,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                 {/* Price & Store Row */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/70">Preis (€)</label>
+                        <label className="text-sm font-medium text-white/70">Price (€)</label>
                         <div className="relative">
                             <input
                                 type="number"
@@ -119,12 +119,12 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/70">Shop-Name</label>
+                        <label className="text-sm font-medium text-white/70">Store Name</label>
                         <input
                             type="text"
                             value={storeName}
                             onChange={(e) => setStoreName(e.target.value)}
-                            placeholder="z.B. Nike"
+                            placeholder="e.g. Nike"
                             className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
                             required
                         />
@@ -133,7 +133,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
                 {/* Store URL */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Affiliate-Link</label>
+                    <label className="text-sm font-medium text-white/70">Product Link</label>
                     <div className="relative">
                         <input
                             type="url"
@@ -149,29 +149,29 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
                 {/* Visibility */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Sichtbarkeit</label>
+                    <label className="text-sm font-medium text-white/70">Visibility</label>
                     <select
                         value={visibility}
                         onChange={(e) => setVisibility(e.target.value as Visibility)}
                         className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white focus:border-primary-500 focus:outline-none"
                     >
-                        <option value="public">🌍 Öffentlich</option>
-                        <option value="private">🔒 Privat</option>
-                        <option value="group">👥 Nur Gruppe</option>
+                        <option value="public">🌍 Public</option>
+                        <option value="private">🔒 Private</option>
+                        <option value="group">👥 Group Only</option>
                     </select>
                 </div>
 
                 {/* Group Selection */}
                 {visibility === 'group' && (
                     <div className="space-y-2 animate-slide-down">
-                        <label className="text-sm font-medium text-white/70">Gruppe</label>
+                        <label className="text-sm font-medium text-white/70">Group</label>
                         <select
                             value={groupId}
                             onChange={(e) => setGroupId(e.target.value)}
                             className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white focus:border-primary-500 focus:outline-none"
                             required
                         >
-                            <option value="">Gruppe wählen...</option>
+                            <option value="">Select group...</option>
                             {groups.map(group => (
                                 <option key={group.id} value={group.id}>{group.name}</option>
                             ))}
@@ -187,7 +187,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                     loading={loading}
                 >
                     <Plus className="w-4 h-4" />
-                    Produkt hinzufügen
+                    Add Product
                 </Button>
             </form>
         </Modal>
