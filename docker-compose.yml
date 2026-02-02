@@ -1,0 +1,149 @@
+# Docker Compose for CartConnect Development
+# Includes Supabase (local), Frontend, and optional services
+
+version: '3.8'
+
+services:
+  # ===========================================
+  # SUPABASE SERVICES (Local Development)
+  # ===========================================
+
+  # PostgreSQL Database
+  db:
+    image: supabase/postgres:15.1.0.117
+    container_name: cartconnect-db
+    restart: unless-stopped
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Supabase Studio (Database GUI)
+  studio:
+    image: supabase/studio:20240101-ce42139
+    container_name: cartconnect-studio
+    restart: unless-stopped
+    ports:
+      - "54323:3000"
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: postgres
+      DEFAULT_ORGANIZATION_NAME: CartConnect
+      DEFAULT_PROJECT_NAME: CartConnect Local
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: http://localhost:54321
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SUPABASE_SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+    depends_on:
+      - db
+
+  # Kong API Gateway
+  kong:
+    image: kong:2.8.1
+    container_name: cartconnect-kong
+    restart: unless-stopped
+    ports:
+      - "54321:8000"
+      - "54320:8443"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./supabase/kong.yml:/var/lib/kong/kong.yml:ro
+
+  # GoTrue Auth
+  auth:
+    image: supabase/gotrue:v2.132.3
+    container_name: cartconnect-auth
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: http://localhost:54321
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:postgres@db:5432/postgres
+      GOTRUE_SITE_URL: http://localhost:5173
+      GOTRUE_URI_ALLOW_LIST: http://localhost:*
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: super-secret-jwt-token-for-local-dev-minimum-32-chars
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+
+  # PostgREST API
+  rest:
+    image: postgrest/postgrest:v11.2.0
+    container_name: cartconnect-rest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://authenticator:postgres@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: super-secret-jwt-token-for-local-dev-minimum-32-chars
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+
+  # Postgres Meta (for Studio)
+  meta:
+    image: supabase/postgres-meta:v0.68.0
+    container_name: cartconnect-meta
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_NAME: postgres
+      PG_META_DB_USER: supabase
+      PG_META_DB_PASSWORD: postgres
+
+  # ===========================================
+  # FRONTEND
+  # ===========================================
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cartconnect-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+    environment:
+      - VITE_SUPABASE_URL=http://localhost:54321
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+    depends_on:
+      - kong
+
+volumes:
+  db-data:
+
+
+networks:
+  default:
+    name: cartconnect-network

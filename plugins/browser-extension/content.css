@@ -1,0 +1,138 @@
+/* CartConnect Browser Extension - Content Script Styles */
+
+#cartconnect-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.cartconnect-popup-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    width: 320px;
+    overflow: hidden;
+    animation: cartconnect-slide-in 0.3s ease-out;
+}
+
+@keyframes cartconnect-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cartconnect-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.cartconnect-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    line-height: 1;
+}
+
+.cartconnect-close:hover {
+    opacity: 1;
+}
+
+.cartconnect-popup-body {
+    padding: 16px;
+}
+
+.cartconnect-popup-body img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.cartconnect-product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cartconnect-product-info input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.cartconnect-product-info input:focus {
+    border-color: #8B5CF6;
+}
+
+.cartconnect-product-info input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.cartconnect-popup-footer {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cartconnect-popup-footer button {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cartconnect-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cartconnect-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cartconnect-submit {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    border: none;
+    color: white;
+}
+
+.cartconnect-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.cartconnect-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
