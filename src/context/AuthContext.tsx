@@ -30,6 +30,7 @@ function profileToUser(profile: Profile, followers: string[] = [], following: st
         following,
         followers,
         groups: [],
+        isPrivate: profile.isPrivate,
         createdAt: profile.createdAt
     };
 }
@@ -47,6 +48,7 @@ const DEMO_USER: User = {
         { id: 'group-1', name: 'Familie', members: ['user-2', 'user-3'] },
         { id: 'group-2', name: 'Beste Freunde', members: ['user-4', 'user-5'] }
     ],
+    isPrivate: false,
     createdAt: new Date()
 };
 

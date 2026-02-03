@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Link, DollarSign, Store, Image } from 'lucide-react';
+import { Plus, Link, DollarSign, Store, Image, Wand2 } from 'lucide-react';
 import { Modal, Button } from '../common';
+import { supabase } from '../../lib/supabase';
 import type { Visibility, Group } from '../../types';
 
 interface ImportProductFormProps {
@@ -12,11 +13,40 @@ interface ImportProductFormProps {
         price: number;
         storeName: string;
         storeUrl: string;
+        category?: string;
         visibility: Visibility;
         groupId?: string;
     }) => void;
     groups: Group[];
 }
+
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: 'var(--space-4)',
+    paddingLeft: '44px',
+    borderRadius: 'var(--radius-md)',
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border-subtle)',
+    color: 'var(--text-primary)',
+    fontSize: '15px',
+    outline: 'none'
+};
+
+const labelStyle: React.CSSProperties = {
+    fontSize: '14px',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: 'var(--space-2)',
+    display: 'block'
+};
+
+const iconStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: '14px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: 'var(--text-muted)'
+};
 
 const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductFormProps) => {
     const [name, setName] = useState('');
@@ -24,9 +54,35 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
     const [price, setPrice] = useState('');
     const [storeName, setStoreName] = useState('');
     const [storeUrl, setStoreUrl] = useState('');
+    const [category, setCategory] = useState('');
     const [visibility, setVisibility] = useState<Visibility>('public');
     const [groupId, setGroupId] = useState<string>('');
     const [loading, setLoading] = useState(false);
+
+    // Scraper state
+    const [scraping, setScraping] = useState(false);
+
+    const handleScrape = async () => {
+        if (!storeUrl) return;
+        setScraping(true);
+        try {
+            const { data, error } = await supabase.functions.invoke('scrape-product', {
+                body: { url: storeUrl }
+            });
+
+            if (error) throw error;
+            if (data && data.success) {
+                if (data.title) setName(data.title.trim());
+                if (data.image) setImageUrl(data.image);
+                if (data.price) setPrice(data.price.toString());
+                if (data.storeName) setStoreName(data.storeName);
+            }
+        } catch (error) {
+            console.error('Scraping failed:', error);
+        } finally {
+            setScraping(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,10 +92,11 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
         try {
             await onSubmit({
                 name,
-                images: [imageUrl], // Convert single URL to array
+                images: [imageUrl],
                 price: parseFloat(price),
                 storeName,
                 storeUrl,
+                category,
                 visibility,
                 groupId: visibility === 'group' ? groupId : undefined
             });
@@ -49,6 +106,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
             setPrice('');
             setStoreName('');
             setStoreUrl('');
+            setCategory('');
             setVisibility('public');
             setGroupId('');
             onClose();
@@ -59,101 +117,179 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Add Product">
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form
+                onSubmit={handleSubmit}
+                style={{ padding: '0 var(--space-6) var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}
+            >
+                {/* 1. Product Link (Top) */}
+                <div style={{ padding: 'var(--space-6) 0 0' }}>
+                    <label style={labelStyle}>Product Link</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <input
+                                type="url"
+                                value={storeUrl}
+                                onChange={(e) => setStoreUrl(e.target.value)}
+                                placeholder="https://shop.com/product/123"
+                                style={inputStyle}
+                                required
+                            />
+                            <Link size={18} style={iconStyle} />
+                        </div>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={handleScrape}
+                            loading={scraping}
+                            disabled={!storeUrl}
+                        >
+                            <Wand2 size={16} />
+                            <span style={{ marginLeft: '8px' }}>Auto-Fill</span>
+                        </Button>
+                    </div>
+                    {/* Divider */}
+                    <div style={{ height: '1px', background: 'var(--border-subtle)', marginTop: 'var(--space-6)' }} />
+                </div>
+
+                {/* 2. Fetched Details */}
+
                 {/* Product Name */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Product Name</label>
-                    <div className="relative">
+                <div>
+                    <label style={labelStyle}>Product Name</label>
+                    <div style={{ position: 'relative' }}>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g. Nike Air Max 90"
-                            className="w-full p-3 pl-10 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
+                            style={inputStyle}
                             required
                         />
-                        <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                        <Store size={18} style={iconStyle} />
                     </div>
                 </div>
 
-                {/* Image URL */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Image URL</label>
-                    <div className="relative">
-                        <input
-                            type="url"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://example.com/image.jpg"
-                            className="w-full p-3 pl-10 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
-                            required
-                        />
-                        <Image className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                    </div>
-                    {imageUrl && (
-                        <img
-                            src={imageUrl}
-                            alt="Preview"
-                            className="w-full h-32 object-cover rounded-xl mt-2"
-                            onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
-                        />
+                {/* Image Preview / URL Input */}
+                <div>
+                    <label style={labelStyle}>Product Image</label>
+                    {imageUrl ? (
+                        <div style={{ position: 'relative' }}>
+                            <img
+                                src={imageUrl}
+                                alt="Preview"
+                                style={{
+                                    width: '100%',
+                                    height: '240px',
+                                    objectFit: 'contain',
+                                    borderRadius: 'var(--radius-md)',
+                                    background: 'var(--bg-subtle)',
+                                    border: '1px solid var(--border-subtle)'
+                                }}
+                                onError={(e) => (e.target as HTMLImageElement).src = 'https://placehold.co/400x400?text=No+Image'}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setImageUrl('')}
+                                style={{
+                                    position: 'absolute',
+                                    top: '8px',
+                                    right: '8px',
+                                    background: 'rgba(0,0,0,0.6)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '28px',
+                                    height: '28px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    backdropFilter: 'blur(4px)'
+                                }}
+                                title="Change Image"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ) : (
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type="url"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                placeholder="Paste image address if missing..."
+                                style={inputStyle}
+                                required
+                            />
+                            <Image size={18} style={iconStyle} />
+                        </div>
                     )}
                 </div>
 
                 {/* Price & Store Row */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/70">Price (€)</label>
-                        <div className="relative">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                    <div>
+                        <label style={labelStyle}>Price (€)</label>
+                        <div style={{ position: 'relative' }}>
                             <input
                                 type="number"
                                 step="0.01"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
                                 placeholder="99.99"
-                                className="w-full p-3 pl-10 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
+                                style={inputStyle}
                                 required
                             />
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                            <DollarSign size={18} style={iconStyle} />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/70">Store Name</label>
+                    <div>
+                        <label style={labelStyle}>Store Name</label>
                         <input
                             type="text"
                             value={storeName}
                             onChange={(e) => setStoreName(e.target.value)}
                             placeholder="e.g. Nike"
-                            className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
+                            style={{ ...inputStyle, paddingLeft: 'var(--space-4)' }}
                             required
                         />
                     </div>
                 </div>
 
-                {/* Store URL */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Product Link</label>
-                    <div className="relative">
-                        <input
-                            type="url"
-                            value={storeUrl}
-                            onChange={(e) => setStoreUrl(e.target.value)}
-                            placeholder="https://shop.com/product/123"
-                            className="w-full p-3 pl-10 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
-                            required
-                        />
-                        <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                {/* Category */}
+                <div>
+                    <label style={labelStyle}>Category</label>
+                    <div style={{ position: 'relative' }}>
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            style={{
+                                ...inputStyle,
+                                paddingLeft: 'var(--space-4)',
+                                appearance: 'none'
+                            }}
+                        >
+                            <option value="">Select category...</option>
+                            {['Fashion', 'Beauty', 'Home', 'Fitness', 'Family', 'Sale'].map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                        <Store size={18} style={iconStyle} />
                     </div>
                 </div>
 
                 {/* Visibility */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Visibility</label>
+                <div>
+                    <label style={labelStyle}>Visibility</label>
                     <select
                         value={visibility}
                         onChange={(e) => setVisibility(e.target.value as Visibility)}
-                        className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white focus:border-primary-500 focus:outline-none"
+                        style={{
+                            ...inputStyle,
+                            paddingLeft: 'var(--space-4)',
+                            appearance: 'none'
+                        }}
                     >
                         <option value="public">🌍 Public</option>
                         <option value="private">🔒 Private</option>
@@ -163,12 +299,16 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
                 {/* Group Selection */}
                 {visibility === 'group' && (
-                    <div className="space-y-2 animate-slide-down">
-                        <label className="text-sm font-medium text-white/70">Group</label>
+                    <div>
+                        <label style={labelStyle}>Group</label>
                         <select
                             value={groupId}
                             onChange={(e) => setGroupId(e.target.value)}
-                            className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white focus:border-primary-500 focus:outline-none"
+                            style={{
+                                ...inputStyle,
+                                paddingLeft: 'var(--space-4)',
+                                appearance: 'none'
+                            }}
                             required
                         >
                             <option value="">Select group...</option>
@@ -183,11 +323,11 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                 <Button
                     type="submit"
                     variant="primary"
-                    className="w-full mt-6"
                     loading={loading}
+                    style={{ width: '100%', marginTop: 'var(--space-2)' }}
                 >
-                    <Plus className="w-4 h-4" />
-                    Add Product
+                    <Plus size={18} />
+                    Post Product
                 </Button>
             </form>
         </Modal>

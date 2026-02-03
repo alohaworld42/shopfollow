@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { Avatar } from '../common';
 import type { Product } from '../../types';
 
 interface FeedCardProps {
@@ -56,29 +55,29 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
         if (seconds < 60) return 'just now';
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-        return `${Math.floor(seconds / 86400)}d ago`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+        return `${Math.floor(seconds / 86400)}d`;
     };
 
     return (
         <article className="feed-card">
-            {/* Header with User Info */}
+            {/* Header - Creator info with generous spacing */}
             <div className="feed-card-header">
                 <div className="feed-card-user">
-                    <Avatar
+                    <img
                         src={product.userAvatar}
                         alt={product.userName}
-                        size="md"
+                        className="feed-card-user-avatar"
                     />
-                    <div>
+                    <div className="feed-card-user-info">
                         <p className="feed-card-user-name">{product.userName}</p>
                         <span className="feed-card-time">{timeAgo(product.createdAt)}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Image Carousel */}
+            {/* Image Carousel - Large hero style */}
             <div
                 className="feed-card-images"
                 onDoubleClick={handleDoubleTap}
@@ -102,7 +101,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                 {/* Heart Animation */}
                 {showHeartAnimation && (
                     <div className="feed-card-heart-animation">
-                        <Heart size={80} fill="white" color="white" />
+                        <Heart size={88} fill="white" color="white" />
                     </div>
                 )}
 
@@ -117,7 +116,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                             }}
                             disabled={imageIndex === 0}
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={22} />
                         </button>
                         <button
                             className="feed-card-image-nav next"
@@ -127,7 +126,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                             }}
                             disabled={imageIndex === images.length - 1}
                         >
-                            <ChevronRight size={20} />
+                            <ChevronRight size={22} />
                         </button>
                         <div className="feed-card-image-indicators">
                             {images.map((_, idx) => (
@@ -141,7 +140,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                 )}
             </div>
 
-            {/* Content */}
+            {/* Content - Spacious layout */}
             <div className="feed-card-content">
                 <h3 className="feed-card-title">{product.name}</h3>
                 <p className="feed-card-store">
@@ -162,13 +161,22 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                     )}
                 </div>
 
-                {/* Actions */}
+                {/* Shop Button - Full width, prominent */}
+                <button
+                    onClick={handleShopNow}
+                    className="feed-card-shop-btn"
+                >
+                    <ExternalLink size={18} strokeWidth={1.5} />
+                    Shop Now
+                </button>
+
+                {/* Actions - Subtle row */}
                 <div className="feed-card-actions">
                     <button
                         className={`feed-card-action ${isLiked ? 'liked' : ''}`}
                         onClick={(e) => { e.stopPropagation(); onLike(product.id); }}
                     >
-                        <Heart size={22} fill={isLiked ? 'currentColor' : 'none'} />
+                        <Heart size={22} strokeWidth={1.5} fill={isLiked ? 'currentColor' : 'none'} />
                         {product.likes.length > 0 && <span>{product.likes.length}</span>}
                     </button>
 
@@ -176,7 +184,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                         className="feed-card-action"
                         onClick={(e) => { e.stopPropagation(); onComment(); }}
                     >
-                        <MessageCircle size={22} />
+                        <MessageCircle size={22} strokeWidth={1.5} />
                         {product.comments.length > 0 && <span>{product.comments.length}</span>}
                     </button>
 
@@ -184,23 +192,15 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                         className="feed-card-action"
                         onClick={(e) => { e.stopPropagation(); handleShare(); }}
                     >
-                        <Share2 size={22} />
+                        <Share2 size={22} strokeWidth={1.5} />
                     </button>
 
                     <button
                         className={`feed-card-action ${isSaved ? 'saved' : ''}`}
                         onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
+                        style={{ marginLeft: 'auto' }}
                     >
-                        {isSaved ? <BookmarkCheck size={22} /> : <Bookmark size={22} />}
-                    </button>
-
-                    {/* Shop Now Button */}
-                    <button
-                        onClick={handleShopNow}
-                        className="feed-card-shop-btn"
-                    >
-                        <ExternalLink size={16} />
-                        Shop Now
+                        {isSaved ? <BookmarkCheck size={22} strokeWidth={1.5} /> : <Bookmark size={22} strokeWidth={1.5} />}
                     </button>
                 </div>
             </div>

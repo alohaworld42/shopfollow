@@ -1,5 +1,4 @@
 import { Eye, EyeOff, Users as UsersIcon } from 'lucide-react';
-import { Badge } from '../common';
 import type { Product } from '../../types';
 
 interface ProductGridProps {
@@ -11,60 +10,92 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
     const getVisibilityIcon = (visibility: string) => {
         switch (visibility) {
             case 'private':
-                return <EyeOff className="w-4 h-4" />;
+                return <EyeOff size={14} />;
             case 'group':
-                return <UsersIcon className="w-4 h-4" />;
+                return <UsersIcon size={14} />;
             default:
-                return <Eye className="w-4 h-4" />;
+                return <Eye size={14} />;
         }
     };
 
     if (products.length === 0) {
         return (
-            <div className="text-center py-12 px-4">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-700 flex items-center justify-center">
-                    <Eye className="w-10 h-10 text-white/30" />
+            <div className="empty-state">
+                <div className="empty-state-icon">
+                    <Eye size={32} />
                 </div>
-                <p className="text-white/50">Noch keine Produkte</p>
-                <p className="text-sm text-white/30 mt-1">Füge dein erstes Item hinzu!</p>
+                <h3>No products yet</h3>
+                <p>Add your first item to get started!</p>
             </div>
         );
     }
 
     return (
-        <div className="profile-grid mt-4 px-4">
+        <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 'var(--space-1)',
+            marginTop: 'var(--space-4)',
+            padding: '0 var(--space-5)'
+        }}>
             {products.map((product) => (
                 <button
                     key={product.id}
                     onClick={() => onProductClick(product)}
-                    className="profile-grid-item group"
+                    style={{
+                        position: 'relative',
+                        aspectRatio: '1',
+                        overflow: 'hidden',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'var(--bg-elevated)',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer'
+                    }}
                 >
                     <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.3s ease'
+                        }}
                         loading="lazy"
                     />
 
-                    {/* Overlay on Hover */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <span className="text-white text-sm font-medium">€{product.price.toFixed(0)}</span>
-                    </div>
-
                     {/* Visibility Badge */}
-                    <div className="absolute top-2 right-2">
-                        <Badge
-                            variant={product.visibility === 'public' ? 'success' : 'warning'}
-                            size="sm"
-                        >
-                            {getVisibilityIcon(product.visibility)}
-                        </Badge>
+                    <div style={{
+                        position: 'absolute',
+                        top: 'var(--space-2)',
+                        right: 'var(--space-2)',
+                        background: product.visibility === 'public'
+                            ? 'rgba(16, 185, 129, 0.8)'
+                            : 'rgba(245, 158, 11, 0.8)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        {getVisibilityIcon(product.visibility)}
                     </div>
 
                     {/* Private Overlay */}
                     {product.visibility === 'private' && (
-                        <div className="absolute inset-0 bg-dark-900/40 flex items-center justify-center pointer-events-none">
-                            <EyeOff className="w-6 h-6 text-white/50" />
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(12, 12, 12, 0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none'
+                        }}>
+                            <EyeOff size={24} color="rgba(255,255,255,0.5)" />
                         </div>
                     )}
                 </button>

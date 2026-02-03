@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, ExternalLink, Send } from 'lucide-react';
-import { Modal, Avatar, Badge, Button } from '../common';
+import { Modal } from '../common';
 import { useAuth } from '../../hooks';
 import type { Product } from '../../types';
 
@@ -35,121 +35,230 @@ const ProductDetail = ({
 
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-        if (seconds < 60) return 'Jetzt';
-        if (seconds < 3600) return `vor ${Math.floor(seconds / 60)}m`;
-        if (seconds < 86400) return `vor ${Math.floor(seconds / 3600)}h`;
-        return `vor ${Math.floor(seconds / 86400)}d`;
+        if (seconds < 60) return 'now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+        return `${Math.floor(seconds / 86400)}d`;
     };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="lg">
-            <div className="flex flex-col md:flex-row max-h-[85vh]">
+            <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}>
                 {/* Image Section */}
-                <div className="md:w-1/2 relative">
+                <div style={{ position: 'relative' }}>
                     <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-full aspect-4-5 md:aspect-auto md:h-full object-cover"
+                        style={{
+                            width: '100%',
+                            aspectRatio: '4/5',
+                            objectFit: 'cover'
+                        }}
                     />
-                    <div className="absolute top-4 right-4">
-                        <Badge variant="price" size="md">
-                            €{product.price.toFixed(2)}
-                        </Badge>
+                    <div style={{
+                        position: 'absolute',
+                        top: 'var(--space-4)',
+                        right: 'var(--space-4)',
+                        background: 'var(--bg-glass)',
+                        backdropFilter: 'blur(10px)',
+                        padding: 'var(--space-2) var(--space-3)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontWeight: 600,
+                        color: 'white'
+                    }}>
+                        €{product.price.toFixed(2)}
                     </div>
                 </div>
 
                 {/* Details Section */}
-                <div className="md:w-1/2 flex flex-col">
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                     {/* Header */}
-                    <div className="flex items-center gap-3 p-4 border-b border-white/10">
-                        <Avatar src={product.userAvatar} alt={product.userName} size="md" />
-                        <div className="flex-1">
-                            <p className="font-semibold text-white">{product.userName}</p>
-                            <p className="text-xs text-white/50">{product.storeName}</p>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-4)',
+                        padding: 'var(--space-5)',
+                        borderBottom: '1px solid var(--border-subtle)'
+                    }}>
+                        <img
+                            src={product.userAvatar}
+                            alt={product.userName}
+                            style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '50%',
+                                objectFit: 'cover'
+                            }}
+                        />
+                        <div style={{ flex: 1 }}>
+                            <p style={{
+                                fontWeight: 600,
+                                color: 'var(--text-primary)',
+                                marginBottom: '2px'
+                            }}>{product.userName}</p>
+                            <p style={{
+                                fontSize: '13px',
+                                color: 'var(--text-muted)'
+                            }}>{product.storeName}</p>
                         </div>
                     </div>
 
                     {/* Comments Section */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-64 md:max-h-none">
+                    <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        padding: 'var(--space-5)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 'var(--space-5)',
+                        maxHeight: '240px'
+                    }}>
                         {/* Product Description */}
-                        <div className="flex gap-3">
-                            <Avatar src={product.userAvatar} alt={product.userName} size="sm" />
+                        <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+                            <img
+                                src={product.userAvatar}
+                                alt={product.userName}
+                                style={{
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover'
+                                }}
+                            />
                             <div>
-                                <p className="text-sm text-white">
-                                    <span className="font-semibold">{product.userName}</span>{' '}
-                                    <span className="text-white/80">{product.name}</span>
+                                <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                                    <span style={{ fontWeight: 600 }}>{product.userName}</span>{' '}
+                                    <span style={{ color: 'var(--text-secondary)' }}>{product.name}</span>
                                 </p>
-                                <p className="text-xs text-white/50 mt-1">{timeAgo(product.createdAt)}</p>
+                                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                    {timeAgo(product.createdAt)}
+                                </p>
                             </div>
                         </div>
 
                         {/* Comments List */}
                         {product.comments.map(comment => (
-                            <div key={comment.id} className="flex gap-3">
-                                <Avatar src={comment.userAvatar} alt={comment.userName} size="sm" />
+                            <div key={comment.id} style={{ display: 'flex', gap: 'var(--space-4)' }}>
+                                <img
+                                    src={comment.userAvatar}
+                                    alt={comment.userName}
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '50%',
+                                        objectFit: 'cover'
+                                    }}
+                                />
                                 <div>
-                                    <p className="text-sm text-white">
-                                        <span className="font-semibold">{comment.userName}</span>{' '}
-                                        <span className="text-white/80">{comment.text}</span>
+                                    <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                                        <span style={{ fontWeight: 600 }}>{comment.userName}</span>{' '}
+                                        <span style={{ color: 'var(--text-secondary)' }}>{comment.text}</span>
                                     </p>
-                                    <p className="text-xs text-white/50 mt-1">{timeAgo(comment.createdAt)}</p>
+                                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                        {timeAgo(comment.createdAt)}
+                                    </p>
                                 </div>
                             </div>
                         ))}
 
                         {product.comments.length === 0 && (
-                            <p className="text-center text-white/40 text-sm py-8">
-                                Noch keine Kommentare. Sei der Erste!
+                            <p style={{
+                                textAlign: 'center',
+                                color: 'var(--text-muted)',
+                                fontSize: '14px',
+                                padding: 'var(--space-6) 0'
+                            }}>
+                                No comments yet. Be the first!
                             </p>
                         )}
                     </div>
 
                     {/* Actions */}
-                    <div className="p-4 border-t border-white/10">
-                        <div className="flex items-center gap-4 mb-4">
+                    <div style={{
+                        padding: 'var(--space-5)',
+                        borderTop: '1px solid var(--border-subtle)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-5)',
+                            marginBottom: 'var(--space-4)'
+                        }}>
                             <button
                                 onClick={() => onLike(product.id)}
-                                className="flex items-center gap-1.5"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 'var(--space-2)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: 0
+                                }}
                             >
                                 <Heart
-                                    className={`w-6 h-6 transition-all ${isLiked
-                                            ? 'text-red-500 fill-red-500'
-                                            : 'text-white hover:text-red-400'
-                                        }`}
+                                    size={24}
+                                    strokeWidth={1.5}
+                                    fill={isLiked ? 'var(--color-error)' : 'none'}
+                                    color={isLiked ? 'var(--color-error)' : 'var(--text-primary)'}
                                 />
-                                <span className="text-sm text-white/70">{product.likes.length}</span>
+                                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                                    {product.likes.length}
+                                </span>
                             </button>
-                            <MessageCircle className="w-6 h-6 text-white" />
+                            <MessageCircle size={24} strokeWidth={1.5} color="var(--text-primary)" />
                         </div>
 
                         {/* Shop Button */}
                         <a
-                            href={product.storeUrl}
+                            href={product.affiliateUrl || product.storeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block w-full"
+                            className="feed-card-shop-btn"
+                            style={{ textDecoration: 'none', display: 'block' }}
                         >
-                            <Button variant="primary" className="w-full">
-                                <ExternalLink className="w-4 h-4" />
-                                Zum Shop
-                            </Button>
+                            <ExternalLink size={18} />
+                            Shop Now
                         </a>
 
                         {/* Comment Input */}
-                        <form onSubmit={handleSubmitComment} className="flex items-center gap-2 mt-4">
+                        <form
+                            onSubmit={handleSubmitComment}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-3)',
+                                marginTop: 'var(--space-4)'
+                            }}
+                        >
                             <input
                                 type="text"
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}
-                                placeholder="Kommentar hinzufügen..."
-                                className="flex-1 bg-transparent border-none text-sm text-white placeholder:text-white/40 focus:outline-none"
+                                placeholder="Add a comment..."
+                                style={{
+                                    flex: 1,
+                                    background: 'var(--bg-elevated)',
+                                    border: '1px solid var(--border-subtle)',
+                                    borderRadius: 'var(--radius-md)',
+                                    padding: 'var(--space-3) var(--space-4)',
+                                    fontSize: '14px',
+                                    color: 'var(--text-primary)',
+                                    outline: 'none'
+                                }}
                             />
                             <button
                                 type="submit"
                                 disabled={!commentText.trim()}
-                                className="p-2 text-primary-400 disabled:text-white/20 transition-colors"
+                                style={{
+                                    padding: 'var(--space-3)',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: commentText.trim() ? 'var(--color-primary)' : 'var(--text-muted)',
+                                    cursor: commentText.trim() ? 'pointer' : 'default'
+                                }}
                             >
-                                <Send className="w-5 h-5" />
+                                <Send size={20} />
                             </button>
                         </form>
                     </div>

@@ -202,7 +202,7 @@ export const useProducts = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const isDemoMode = !isSupabaseConfigured;
+    const isDemoMode = !isSupabaseConfigured || (user?.uid && (user.uid.startsWith('demo-') || user.uid.startsWith('user-')));
 
     // Fetch feed products
     const fetchFeedProducts = useCallback(async () => {
@@ -268,8 +268,9 @@ export const useProducts = () => {
     const addComment = useCallback(async (productId: string, text: string) => {
         if (!user) return;
 
+        const tempId = crypto.randomUUID();
         const newComment = {
-            id: crypto.randomUUID(),
+            id: tempId,
             userId: user.uid,
             userName: user.displayName,
             userAvatar: user.avatarUrl,
@@ -285,7 +286,18 @@ export const useProducts = () => {
         }));
 
         if (!isDemoMode) {
-            await productService.addComment(productId, user.uid, text);
+            try {
+                await productService.addComment(productId, user.uid, text);
+            } catch (error) {
+                // Revert optimistic update
+                setProducts(prev => prev.map(p => {
+                    if (p.id === productId) {
+                        return { ...p, comments: p.comments.filter(c => c.id !== tempId) };
+                    }
+                    return p;
+                }));
+                throw error;
+            }
         }
     }, [user, isDemoMode]);
 
@@ -299,6 +311,7 @@ export const useProducts = () => {
         storeName: string;
         storeUrl: string;
         affiliateUrl?: string;
+        category?: string;
         visibility: Visibility;
         groupId?: string;
     }) => {

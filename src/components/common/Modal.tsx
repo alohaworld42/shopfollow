@@ -35,46 +35,104 @@ const Modal = ({
 
     if (!isOpen) return null;
 
-    const sizeStyles = {
-        sm: 'max-w-sm',
-        md: 'max-w-lg',
-        lg: 'max-w-2xl',
-        full: 'max-w-full mx-4 h-[90vh]'
+    const sizeStyles: Record<string, React.CSSProperties> = {
+        sm: { maxWidth: '380px' },
+        md: { maxWidth: '480px' },
+        lg: { maxWidth: '640px' },
+        full: { maxWidth: 'calc(100% - 32px)', height: '90vh' }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'var(--space-5)'
+        }}>
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
                 onClick={onClose}
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    backdropFilter: 'blur(8px)'
+                }}
             />
 
             {/* Modal Content */}
-            <div
-                className={`relative w-full ${sizeStyles[size]} bg-dark-800 rounded-2xl border border-white/10 shadow-2xl animate-scale-in overflow-hidden`}
-            >
+            <div style={{
+                position: 'relative',
+                width: '100%',
+                ...sizeStyles[size],
+                background: 'var(--bg-card)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-xl)',
+                overflow: 'hidden',
+                animation: 'fadeIn 0.2s ease-out'
+            }}>
                 {/* Header */}
                 {title && (
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                        <h2 className="text-lg font-semibold text-white">{title}</h2>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: 'var(--space-5) var(--space-6)',
+                        borderBottom: '1px solid var(--border-subtle)'
+                    }}>
+                        <h2 style={{
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            color: 'var(--text-primary)'
+                        }}>{title}</h2>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                            style={{
+                                padding: 'var(--space-2)',
+                                borderRadius: '50%',
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text-muted)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
                         >
-                            <X className="w-5 h-5 text-white/60" />
+                            <X size={20} />
                         </button>
                     </div>
                 )}
 
                 {/* Body */}
-                <div className={`${size === 'full' ? 'overflow-y-auto max-h-[calc(90vh-80px)]' : ''}`}>
+                <div style={{
+                    overflowY: size === 'full' ? 'auto' : undefined,
+                    maxHeight: size === 'full' ? 'calc(90vh - 80px)' : undefined
+                }}>
                     {!title && (
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors z-10"
+                            style={{
+                                position: 'absolute',
+                                top: 'var(--space-4)',
+                                right: 'var(--space-4)',
+                                padding: 'var(--space-2)',
+                                borderRadius: '50%',
+                                background: 'var(--bg-glass)',
+                                border: 'none',
+                                color: 'var(--text-muted)',
+                                cursor: 'pointer',
+                                zIndex: 10,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
                         >
-                            <X className="w-5 h-5 text-white/60" />
+                            <X size={20} />
                         </button>
                     )}
                     {children}

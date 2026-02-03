@@ -22,7 +22,8 @@ export const Login = () => {
             await signIn(email, password);
             navigate('/');
         } catch (err) {
-            setError('Invalid email or password');
+            console.error(err);
+            setError((err as Error).message || 'Invalid email or password');
         } finally {
             setLoading(false);
         }

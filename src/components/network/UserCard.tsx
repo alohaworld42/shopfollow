@@ -1,5 +1,4 @@
-import { UserPlus, UserMinus, Trophy } from 'lucide-react';
-import { Avatar, Button } from '../common';
+import { UserPlus, UserMinus, Trophy, Users } from 'lucide-react';
 import type { User } from '../../types';
 
 interface UserCardProps {
@@ -11,38 +10,71 @@ interface UserCardProps {
 
 const UserCard = ({ user, isFollowing, onFollow, onUnfollow }: UserCardProps) => {
     return (
-        <div className="flex items-center gap-3 p-4 bg-dark-800 rounded-2xl border border-white/5 animate-fade-in">
-            <Avatar src={user.avatarUrl} alt={user.displayName} size="lg" />
+        <div className="feed-card" style={{ padding: 'var(--space-4)' }}>
+            <div className="flex items-center gap-4">
+                {/* Avatar */}
+                <img
+                    src={user.avatarUrl}
+                    alt={user.displayName}
+                    className="feed-card-user-avatar"
+                    style={{ width: '56px', height: '56px' }}
+                />
 
-            <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white truncate">{user.displayName}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <Trophy className="w-3.5 h-3.5 text-primary-400" />
-                    <span className="text-xs text-white/50">{user.score} Punkte</span>
-                    <span className="text-xs text-white/30">•</span>
-                    <span className="text-xs text-white/50">{user.followers.length} Follower</span>
+                {/* Info */}
+                <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <p className="feed-card-title" style={{ fontSize: '16px', marginBottom: 0 }}>
+                        {user.displayName}
+                    </p>
+
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5 text-xs text-white/40">
+                            <Trophy size={14} className="text-primary-400" />
+                            <span>{user.score}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-white/40">
+                            <Users size={14} />
+                            <span>{user.followers.length} Followers</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {isFollowing ? (
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onUnfollow(user.uid)}
-                >
-                    <UserMinus className="w-4 h-4" />
-                    Entfolgen
-                </Button>
-            ) : (
-                <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => onFollow(user.uid)}
-                >
-                    <UserPlus className="w-4 h-4" />
-                    Folgen
-                </Button>
-            )}
+                {/* Action Button */}
+                {isFollowing ? (
+                    <button
+                        onClick={() => onUnfollow(user.uid)}
+                        className="feed-card-action"
+                        style={{
+                            width: 'auto',
+                            height: '36px',
+                            minHeight: '36px',
+                            padding: '0 16px',
+                            background: 'var(--bg-elevated)',
+                            color: 'var(--text-muted)',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            borderRadius: '10px'
+                        }}
+                    >
+                        Following
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => onFollow(user.uid)}
+                        className="feed-card-shop-btn"
+                        style={{
+                            width: 'auto',
+                            height: '36px',
+                            minHeight: '36px',
+                            padding: '0 20px',
+                            marginBottom: 0,
+                            fontSize: '13px',
+                            boxShadow: 'none'
+                        }}
+                    >
+                        Follow
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

@@ -2,7 +2,7 @@
 -- Migration: 001_initial_schema.sql
 
 -- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable pgcrypto for gen_random_uuid() (enabled by default in Supabase)
 
 -- ============================================
 -- USERS / PROFILES
@@ -21,7 +21,7 @@ CREATE TABLE public.profiles (
 -- GROUPS (for sharing visibility)
 -- ============================================
 CREATE TABLE public.groups (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -55,7 +55,7 @@ ADD CONSTRAINT no_self_follow CHECK (follower_id != following_id);
 CREATE TYPE visibility_type AS ENUM ('public', 'private', 'group');
 
 CREATE TABLE public.products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     image_url TEXT NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE public.likes (
 -- COMMENTS
 -- ============================================
 CREATE TABLE public.comments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     text TEXT NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE public.comments (
 CREATE TYPE order_status AS ENUM ('pending', 'accepted', 'rejected');
 
 CREATE TABLE public.staging_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     source TEXT NOT NULL, -- 'shopify', 'woocommerce', 'manual', etc.
     source_order_id TEXT, -- Original order ID from source
@@ -114,7 +114,7 @@ CREATE TABLE public.staging_orders (
 -- SHOP CONNECTIONS (for webhook auth)
 -- ============================================
 CREATE TABLE public.shop_connections (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     platform TEXT NOT NULL, -- 'shopify', 'woocommerce', etc.
     shop_domain TEXT NOT NULL,

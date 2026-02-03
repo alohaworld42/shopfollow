@@ -11,6 +11,7 @@ export interface User {
     followers: string[];
     groups: Group[];
     affiliateNetworks?: string[];
+    isPrivate: boolean;
     createdAt: Date;
 }
 

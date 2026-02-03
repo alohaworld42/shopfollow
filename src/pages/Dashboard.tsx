@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, Grid3X3, Bookmark } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Grid3X3, Bookmark, BarChart2, DollarSign, MousePointer2 } from 'lucide-react';
 import { ProductGrid, EditProductModal, ImportProductForm } from '../components/profile';
 import { useAuth, useProducts, useToast } from '../hooks';
+import { getDashboardStats, type DashboardStats } from '../services/analyticsService';
 import type { Product, Visibility } from '../types';
 
 const Dashboard = () => {
@@ -12,23 +13,24 @@ const Dashboard = () => {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [showImportForm, setShowImportForm] = useState(false);
     const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
+    const [stats, setStats] = useState<DashboardStats>({
+        earnings: 0,
+        clicks: 0,
+        orders: 0,
+        reach: 0,
+        totalProducts: 0,
+        totalLikes: 0,
+        totalComments: 0,
+        followers: 0,
+        following: 0
+    });
 
     useEffect(() => {
         if (user) {
             fetchUserProducts(user.uid);
+            getDashboardStats(user.uid).then(setStats);
         }
     }, [user, fetchUserProducts]);
-
-    // Calculate stats
-    const stats = useMemo(() => {
-        const totalSpending = products.reduce((sum, p) => sum + p.price, 0);
-        return {
-            posts: products.length,
-            followers: user?.followers?.length || 0,
-            following: user?.following?.length || 0,
-            spending: totalSpending
-        };
-    }, [products, user]);
 
     const handleUpdateVisibility = (productId: string, data: { visibility: Visibility; groupId?: string }) => {
         updateProduct(productId, data);
@@ -46,13 +48,21 @@ const Dashboard = () => {
         price: number;
         storeName: string;
         storeUrl: string;
+        category?: string;
         visibility: Visibility;
         groupId?: string;
     }) => {
-        await createProduct(data);
-        showToast('success', 'Product added!');
-        if (user) {
-            fetchUserProducts(user.uid);
+        try {
+            await createProduct(data);
+            showToast('success', 'Product added!');
+            if (user) {
+                fetchUserProducts(user.uid);
+            }
+            setShowImportForm(false);
+        } catch (error) {
+            console.error('Failed to create product:', error);
+            showToast('error', (error as Error).message || 'Failed to create product');
+            throw error; // Re-throw so form stays open
         }
     };
 
@@ -72,30 +82,44 @@ const Dashboard = () => {
                 </div>
             ) : (
                 <>
-                    {/* Profile Header Card */}
-                    <div className="profile-header">
-                        <img
-                            src={user.avatarUrl}
-                            alt={user.displayName}
-                            className="profile-avatar"
-                        />
-                        <h1 className="profile-name">{user.displayName}</h1>
-                        <p className="profile-username">@{user.displayName?.toLowerCase().replace(/\s+/g, '_')}</p>
-                        <p className="profile-bio">Curating the best finds 🛍️</p>
+                    {/* Creator Stats Card */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-subtle)',
+                        padding: 'var(--space-6)',
+                        marginBottom: 'var(--space-2)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                                Business Dashboard
+                            </h2>
+                            <span style={{
+                                fontSize: '13px',
+                                color: 'var(--color-success)',
+                                background: 'rgba(16, 185, 129, 0.1)',
+                                padding: '4px 8px',
+                                borderRadius: '8px'
+                            }}>
+                                +12% this week
+                            </span>
+                        </div>
 
-                        {/* Stats */}
-                        <div className="profile-stats">
-                            <div className="profile-stat">
-                                <span className="profile-stat-value">{stats.posts}</span>
-                                <span className="profile-stat-label">Posts</span>
+                        <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
+                                <div style={{ color: 'var(--color-primary-light)', marginBottom: '8px' }}><DollarSign size={20} /></div>
+                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>${stats.earnings.toFixed(0)}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Earnings</div>
                             </div>
-                            <div className="profile-stat">
-                                <span className="profile-stat-value">{stats.followers}</span>
-                                <span className="profile-stat-label">Followers</span>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
+                                <div style={{ color: 'var(--color-accent)', marginBottom: '8px' }}><MousePointer2 size={20} /></div>
+                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.clicks}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Link Clicks</div>
                             </div>
-                            <div className="profile-stat">
-                                <span className="profile-stat-value">{stats.following}</span>
-                                <span className="profile-stat-label">Following</span>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
+                                <div style={{ color: 'var(--color-secondary)', marginBottom: '8px' }}><BarChart2 size={20} /></div>
+                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.reach}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Mthly Reach</div>
                             </div>
                         </div>
 
@@ -105,11 +129,20 @@ const Dashboard = () => {
                                 className="profile-action-btn primary"
                                 onClick={() => setShowImportForm(true)}
                             >
-                                <Plus size={16} /> Add Product
+                                <Plus size={18} /> Create Post
                             </button>
                             <button className="profile-action-btn secondary">
-                                Edit Profile
+                                Manage Links
                             </button>
+                        </div>
+                    </div>
+
+                    {/* Profile Minimal Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px' }}>
+                        <img src={user.avatarUrl} alt="" style={{ width: '48px', height: '48px', borderRadius: '50%', border: '2px solid var(--color-primary)' }} />
+                        <div>
+                            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{user.displayName}</h3>
+                            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>@{user.displayName?.toLowerCase().replace(/\s+/g, '_')}</p>
                         </div>
                     </div>
 

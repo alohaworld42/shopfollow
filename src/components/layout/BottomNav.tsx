@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, Plus, Inbox, User } from 'lucide-react';
+import { Home, Users, MessageSquare, ShoppingBag, LayoutDashboard } from 'lucide-react';
 import { useInbox } from '../../hooks';
 
 const BottomNav = () => {
@@ -9,41 +9,17 @@ const BottomNav = () => {
 
     const navItems = [
         { path: '/', icon: Home, label: 'Home' },
-        { path: '/search', icon: Search, label: 'Search' },
-        { path: '/add', icon: Plus, label: 'Add', special: true },
-        { path: '/inbox', icon: Inbox, label: 'Inbox', badge: unreadCount > 0 ? unreadCount : undefined },
-        { path: '/dashboard', icon: User, label: 'Profile' }
+        { path: '/search', icon: Users, label: 'Find' }, // Changed to Find with Users icon
+        { path: '/reviews', icon: MessageSquare, label: 'Discuss' }, // Changed Add to Discuss
+        { path: '/purchases', icon: ShoppingBag, label: 'Orders', badge: unreadCount > 0 ? unreadCount : undefined },
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Dash' }
     ];
 
     return (
         <nav className="app-bottom-nav">
             <div className="app-bottom-nav-inner">
-                {navItems.map(({ path, icon: Icon, label, special, badge }) => {
+                {navItems.map(({ path, icon: Icon, label, badge }) => {
                     const isActive = location.pathname === path;
-
-                    if (special) {
-                        return (
-                            <button
-                                key={path}
-                                onClick={() => navigate(path)}
-                                style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)',
-                                    borderRadius: '14px',
-                                    border: 'none',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    color: 'white',
-                                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)'
-                                }}
-                            >
-                                <Icon size={24} />
-                            </button>
-                        );
-                    }
 
                     return (
                         <button
@@ -57,13 +33,13 @@ const BottomNav = () => {
                                 cursor: 'pointer'
                             }}
                         >
-                            <Icon size={24} />
+                            <Icon size={24} strokeWidth={1.5} />
                             <span className="nav-item-label">{label}</span>
                             {badge && (
                                 <span style={{
                                     position: 'absolute',
-                                    top: '0',
-                                    right: '0',
+                                    top: '2px',
+                                    right: '4px',
                                     width: '18px',
                                     height: '18px',
                                     background: 'var(--color-error)',
@@ -73,7 +49,8 @@ const BottomNav = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: 'white'
+                                    color: 'white',
+                                    border: '2px solid var(--bg-base)'
                                 }}>
                                     {badge > 9 ? '9+' : badge}
                                 </span>

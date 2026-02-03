@@ -43,59 +43,86 @@ const GroupManager = ({ groups, onCreate, onUpdate, onDelete }: GroupManagerProp
     };
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Deine Gruppen</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    Your Groups
+                </h3>
                 <Button
                     variant="primary"
                     size="sm"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    <Plus className="w-4 h-4" />
-                    Neue Gruppe
+                    <Plus size={16} />
+                    New Group
                 </Button>
             </div>
 
             {groups.length === 0 ? (
-                <Card glass className="text-center py-8">
-                    <Users className="w-12 h-12 text-white/20 mx-auto mb-3" />
-                    <p className="text-white/50">Noch keine Gruppen erstellt</p>
-                    <p className="text-sm text-white/30 mt-1">
-                        Erstelle Gruppen, um Items gezielt zu teilen
-                    </p>
-                </Card>
+                <div className="empty-state">
+                    <div className="empty-state-icon">
+                        <Users size={32} />
+                    </div>
+                    <h3>No groups yet</h3>
+                    <p>Create groups to share items with specific people</p>
+                </div>
             ) : (
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                     {groups.map(group => (
                         <Card
                             key={group.id}
                             glass
                             padding="sm"
-                            className="flex items-center justify-between"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500/30 to-secondary-500/30 flex items-center justify-center">
-                                    <Users className="w-5 h-5 text-primary-400" />
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                    <div style={{
+                                        width: '44px',
+                                        height: '44px',
+                                        borderRadius: '50%',
+                                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <Users size={20} color="var(--color-primary-light)" />
+                                    </div>
+                                    <div>
+                                        <p style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{group.name}</p>
+                                        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                            {group.members.length} members
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-white">{group.name}</p>
-                                    <p className="text-xs text-white/50">{group.members.length} Mitglieder</p>
-                                </div>
-                            </div>
 
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={() => handleEdit(group)}
-                                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                                >
-                                    <Edit3 className="w-4 h-4 text-white/50" />
-                                </button>
-                                <button
-                                    onClick={() => onDelete(group.id)}
-                                    className="p-2 rounded-full hover:bg-red-500/20 transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4 text-red-400/50 hover:text-red-400" />
-                                </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <button
+                                        onClick={() => handleEdit(group)}
+                                        style={{
+                                            padding: 'var(--space-2)',
+                                            borderRadius: '50%',
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: 'var(--text-muted)',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Edit3 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete(group.id)}
+                                        style={{
+                                            padding: 'var(--space-2)',
+                                            borderRadius: '50%',
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: 'rgba(239, 68, 68, 0.6)',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </Card>
                     ))}
@@ -106,23 +133,37 @@ const GroupManager = ({ groups, onCreate, onUpdate, onDelete }: GroupManagerProp
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleClose}
-                title={editingGroup ? 'Gruppe bearbeiten' : 'Neue Gruppe erstellen'}
+                title={editingGroup ? 'Edit Group' : 'Create New Group'}
             >
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-white/70">Gruppenname</label>
+                <form
+                    onSubmit={handleSubmit}
+                    style={{ padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}
+                >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                            Group Name
+                        </label>
                         <input
                             type="text"
                             value={groupName}
                             onChange={(e) => setGroupName(e.target.value)}
-                            placeholder="z.B. Familie, Beste Freunde"
-                            className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white placeholder:text-white/30 focus:border-primary-500 focus:outline-none"
+                            placeholder="e.g. Family, Best Friends"
                             autoFocus
+                            style={{
+                                width: '100%',
+                                padding: 'var(--space-4)',
+                                borderRadius: 'var(--radius-md)',
+                                background: 'var(--bg-elevated)',
+                                border: '1px solid var(--border-subtle)',
+                                color: 'var(--text-primary)',
+                                fontSize: '15px',
+                                outline: 'none'
+                            }}
                         />
                     </div>
 
-                    <Button type="submit" variant="primary" className="w-full">
-                        {editingGroup ? 'Speichern' : 'Erstellen'}
+                    <Button type="submit" variant="primary" style={{ width: '100%' }}>
+                        {editingGroup ? 'Save' : 'Create'}
                     </Button>
                 </form>
             </Modal>

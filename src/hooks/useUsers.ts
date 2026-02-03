@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { isSupabaseConfigured } from '../lib/supabase';
 import * as userService from '../services/userService';
 import type { User, Group } from '../types';
 
@@ -14,6 +15,7 @@ const DEMO_USERS: User[] = [
         following: ['demo-user-1', 'user-3'],
         followers: ['demo-user-1', 'user-4'],
         groups: [],
+        isPrivate: false,
         createdAt: new Date()
     },
     {
@@ -25,6 +27,7 @@ const DEMO_USERS: User[] = [
         following: ['user-2'],
         followers: ['demo-user-1', 'user-2'],
         groups: [],
+        isPrivate: false,
         createdAt: new Date()
     },
     {
@@ -36,6 +39,7 @@ const DEMO_USERS: User[] = [
         following: ['user-2', 'user-5'],
         followers: ['demo-user-1'],
         groups: [],
+        isPrivate: false,
         createdAt: new Date()
     },
     {
@@ -47,6 +51,7 @@ const DEMO_USERS: User[] = [
         following: [],
         followers: ['user-4'],
         groups: [],
+        isPrivate: false,
         createdAt: new Date()
     },
     {
@@ -58,6 +63,7 @@ const DEMO_USERS: User[] = [
         following: [],
         followers: [],
         groups: [],
+        isPrivate: false,
         createdAt: new Date()
     }
 ];
@@ -68,8 +74,7 @@ export const useUsers = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY ||
-        import.meta.env.VITE_FIREBASE_API_KEY === 'YOUR_API_KEY';
+    const isDemoMode = !isSupabaseConfigured || (user?.uid && (user.uid.startsWith('demo-') || user.uid.startsWith('user-')));
 
     // Fetch suggested users
     const fetchSuggestedUsers = useCallback(async () => {
@@ -185,7 +190,8 @@ export const useUsers = () => {
         await updateProfile({ groups: newGroups });
 
         if (!isDemoMode) {
-            await userService.deleteGroup(user.uid, groupId, user.groups);
+            // Fixed: deleteGroup only takes 2 arguments now
+            await userService.deleteGroup(user.uid, groupId);
         }
     }, [user, updateProfile, isDemoMode]);
 

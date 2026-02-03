@@ -142,6 +142,8 @@ export async function createProduct(product: Omit<Product, 'id' | 'likes' | 'com
             store_name: product.storeName,
             store_url: product.storeUrl,
             affiliate_url: product.affiliateUrl,
+            category: product.category,
+            brand: product.brand,
             visibility: product.visibility,
             group_id: product.groupId
         })
@@ -173,6 +175,8 @@ export async function updateProduct(productId: string, updates: Partial<Product>
     if (updates.storeName) dbUpdates.store_name = updates.storeName;
     if (updates.storeUrl) dbUpdates.store_url = updates.storeUrl;
     if (updates.affiliateUrl) dbUpdates.affiliate_url = updates.affiliateUrl;
+    if (updates.category) dbUpdates.category = updates.category;
+    if (updates.brand) dbUpdates.brand = updates.brand;
     if (updates.visibility) dbUpdates.visibility = updates.visibility;
     if (updates.groupId) dbUpdates.group_id = updates.groupId;
 
@@ -222,18 +226,47 @@ export async function toggleLike(productId: string, userId: string): Promise<boo
     }
 }
 
-// Add a comment
+// Add a comment (with moderation)
 export async function addComment(productId: string, userId: string, text: string): Promise<Comment> {
     if (!isSupabaseConfigured) {
         throw new Error('Supabase not configured');
     }
 
+    // Call moderation Edge Function first
+    let moderationStatus: 'approved' | 'flagged' | 'rejected' = 'approved';
+    let moderationScore = 0;
+
+    try {
+        const { data: modResult, error: modError } = await supabase.functions.invoke('moderate-comment', {
+            body: { text }
+        });
+
+        if (!modError && modResult) {
+            if (modResult.rejected) {
+                throw new Error(modResult.reason || 'Comment rejected by moderation');
+            }
+            if (modResult.flagged) {
+                moderationStatus = 'flagged';
+                moderationScore = modResult.toxicityScore || 0;
+            }
+        }
+    } catch (modError) {
+        // If moderation fails, allow comment but log error
+        console.error('Moderation check failed:', modError);
+        if ((modError as Error).message?.includes('rejected')) {
+            throw modError;
+        }
+    }
+
+    // Insert comment with moderation status
     const { data, error } = await supabase
         .from('comments')
         .insert({
             product_id: productId,
             user_id: userId,
-            text
+            text,
+            moderation_status: moderationStatus,
+            toxicity_score: moderationScore
         })
         .select('id, text, created_at, user_id')
         .single();

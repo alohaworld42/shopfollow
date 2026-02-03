@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { Layout } from './components/layout';
-import { Feed, Dashboard, Network, Inbox, Welcome, Login, Signup } from './pages';
+import { Feed, Dashboard, Network, Purchases, Search, Reviews, Settings, AdminDashboard, Notifications, Welcome, Login, Signup } from './pages';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -62,6 +62,12 @@ function AppRoutes() {
           <Layout><Feed /></Layout>
         </ProtectedRoute>
       } />
+      <Route path="/search" element={
+        <ProtectedRoute>
+          <Layout><Search /></Layout>
+        </ProtectedRoute>
+      } />
+      {/* Dashboard */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Layout><Dashboard /></Layout>
@@ -72,11 +78,40 @@ function AppRoutes() {
           <Layout><Network /></Layout>
         </ProtectedRoute>
       } />
-      <Route path="/inbox" element={
+      {/* Reviews/Discuss */}
+      <Route path="/reviews" element={
         <ProtectedRoute>
-          <Layout><Inbox /></Layout>
+          <Layout><Reviews /></Layout>
         </ProtectedRoute>
       } />
+      {/* Notifications */}
+      <Route path="/notifications" element={
+        <ProtectedRoute>
+          <Layout><Notifications /></Layout>
+        </ProtectedRoute>
+      } />
+
+      {/* Purchases */}
+      <Route path="/purchases" element={
+        <ProtectedRoute>
+          <Layout><Purchases /></Layout>
+        </ProtectedRoute>
+      } />
+      {/* Settings */}
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      } />
+      {/* Admin Dashboard */}
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          <AdminDashboard />
+        </ProtectedRoute>
+      } />
+      {/* Redirects */}
+      <Route path="/shop" element={<Navigate to="/search" replace />} />
+      <Route path="/inbox" element={<Navigate to="/purchases" replace />} />
 
       {/* Demo mode - auto login */}
       <Route path="/demo" element={<DemoRedirect />} />

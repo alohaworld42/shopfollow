@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Users, Trash2, ExternalLink } from 'lucide-react';
-import { Modal, Button, Badge } from '../common';
+import { Modal, Button } from '../common';
 import type { Product, Visibility, Group } from '../../types';
 
 interface EditProductModalProps {
@@ -45,53 +45,83 @@ const EditProductModal = ({
     };
 
     const visibilityOptions = [
-        { value: 'public', label: 'Öffentlich', icon: Eye, desc: 'Alle können sehen' },
-        { value: 'private', label: 'Privat', icon: EyeOff, desc: 'Nur du' },
-        { value: 'group', label: 'Gruppe', icon: Users, desc: 'Nur Gruppenmitglieder' }
+        { value: 'public', label: 'Public', icon: Eye, desc: 'Everyone can see' },
+        { value: 'private', label: 'Private', icon: EyeOff, desc: 'Only you' },
+        { value: 'group', label: 'Group', icon: Users, desc: 'Only group members' }
     ] as const;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Item bearbeiten">
-            <div className="p-6 space-y-6">
+        <Modal isOpen={isOpen} onClose={onClose} title="Edit Item">
+            <div style={{ padding: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
                 {/* Product Preview */}
-                <div className="flex gap-4">
+                <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
                     <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-24 h-24 rounded-xl object-cover"
+                        style={{
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: 'var(--radius-md)',
+                            objectFit: 'cover'
+                        }}
                     />
-                    <div className="flex-1">
-                        <h3 className="font-semibold text-white">{product.name}</h3>
-                        <p className="text-sm text-white/50">{product.storeName}</p>
-                        <Badge variant="price" size="sm" className="mt-2">
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                            {product.name}
+                        </h3>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                            {product.storeName}
+                        </p>
+                        <span style={{
+                            background: 'var(--bg-glass)',
+                            padding: '4px 10px',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)'
+                        }}>
                             €{product.price.toFixed(2)}
-                        </Badge>
+                        </span>
                     </div>
                 </div>
 
                 {/* Visibility Options */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/70">Sichtbarkeit</label>
-                    <div className="grid gap-2">
+                <div>
+                    <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 'var(--space-3)', display: 'block' }}>
+                        Visibility
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                         {visibilityOptions.map(opt => {
                             const Icon = opt.icon;
+                            const isActive = visibility === opt.value;
                             return (
                                 <button
                                     key={opt.value}
                                     onClick={() => setVisibility(opt.value)}
-                                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${visibility === opt.value
-                                            ? 'border-primary-500 bg-primary-500/10'
-                                            : 'border-white/10 hover:border-white/20'
-                                        }`}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 'var(--space-4)',
+                                        padding: 'var(--space-4)',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: `1px solid ${isActive ? 'var(--color-primary)' : 'var(--border-subtle)'}`,
+                                        background: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                        cursor: 'pointer',
+                                        textAlign: 'left'
+                                    }}
                                 >
-                                    <Icon className={`w-5 h-5 ${visibility === opt.value ? 'text-primary-400' : 'text-white/50'
-                                        }`} />
-                                    <div className="flex-1 text-left">
-                                        <p className="font-medium text-white">{opt.label}</p>
-                                        <p className="text-xs text-white/50">{opt.desc}</p>
+                                    <Icon size={20} color={isActive ? 'var(--color-primary-light)' : 'var(--text-muted)'} />
+                                    <div style={{ flex: 1 }}>
+                                        <p style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{opt.label}</p>
+                                        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{opt.desc}</p>
                                     </div>
-                                    {visibility === opt.value && (
-                                        <div className="w-2 h-2 rounded-full bg-primary-400" />
+                                    {isActive && (
+                                        <div style={{
+                                            width: '8px',
+                                            height: '8px',
+                                            borderRadius: '50%',
+                                            background: 'var(--color-primary-light)'
+                                        }} />
                                     )}
                                 </button>
                             );
@@ -101,22 +131,39 @@ const EditProductModal = ({
 
                 {/* Group Selection */}
                 {visibility === 'group' && (
-                    <div className="space-y-2 animate-slide-down">
-                        <label className="text-sm font-medium text-white/70">Gruppe auswählen</label>
+                    <div>
+                        <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 'var(--space-2)', display: 'block' }}>
+                            Select Group
+                        </label>
                         {groups.length === 0 ? (
-                            <p className="text-sm text-white/40 p-3 bg-dark-700 rounded-xl">
-                                Keine Gruppen vorhanden. Erstelle zuerst eine Gruppe im Netzwerk-Tab.
+                            <p style={{
+                                fontSize: '14px',
+                                color: 'var(--text-muted)',
+                                padding: 'var(--space-4)',
+                                background: 'var(--bg-elevated)',
+                                borderRadius: 'var(--radius-md)'
+                            }}>
+                                No groups available. Create one in the Network tab first.
                             </p>
                         ) : (
                             <select
                                 value={selectedGroupId || ''}
                                 onChange={(e) => setSelectedGroupId(e.target.value)}
-                                className="w-full p-3 rounded-xl bg-dark-700 border border-white/10 text-white focus:border-primary-500 focus:outline-none"
+                                style={{
+                                    width: '100%',
+                                    padding: 'var(--space-4)',
+                                    borderRadius: 'var(--radius-md)',
+                                    background: 'var(--bg-elevated)',
+                                    border: '1px solid var(--border-subtle)',
+                                    color: 'var(--text-primary)',
+                                    fontSize: '15px',
+                                    outline: 'none'
+                                }}
                             >
-                                <option value="">Gruppe wählen...</option>
+                                <option value="">Select group...</option>
                                 {groups.map(group => (
                                     <option key={group.id} value={group.id}>
-                                        {group.name} ({group.members.length} Mitglieder)
+                                        {group.name} ({group.members.length} members)
                                     </option>
                                 ))}
                             </select>
@@ -129,28 +176,40 @@ const EditProductModal = ({
                     href={product.storeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                        fontSize: '14px',
+                        color: 'var(--color-primary-light)',
+                        textDecoration: 'none'
+                    }}
                 >
-                    <ExternalLink className="w-4 h-4" />
-                    Im Shop öffnen
+                    <ExternalLink size={16} />
+                    Open in Store
                 </a>
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-4 border-t border-white/10">
+                <div style={{
+                    display: 'flex',
+                    gap: 'var(--space-3)',
+                    paddingTop: 'var(--space-4)',
+                    borderTop: '1px solid var(--border-subtle)'
+                }}>
                     <Button
                         variant="danger"
                         onClick={handleDelete}
-                        className="flex-1"
+                        style={{ flex: 1 }}
                     >
-                        <Trash2 className="w-4 h-4" />
-                        {confirmDelete ? 'Wirklich löschen?' : 'Löschen'}
+                        <Trash2 size={16} />
+                        {confirmDelete ? 'Confirm Delete?' : 'Delete'}
                     </Button>
                     <Button
                         variant="primary"
                         onClick={handleSave}
-                        className="flex-1"
+                        style={{ flex: 1 }}
                     >
-                        Speichern
+                        Save
                     </Button>
                 </div>
             </div>

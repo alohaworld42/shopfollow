@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, CSSProperties } from 'react';
 
 interface CardProps {
     children: ReactNode;
@@ -7,13 +7,16 @@ interface CardProps {
     padding?: 'none' | 'sm' | 'md' | 'lg';
     hover?: boolean;
     onClick?: () => void;
+    style?: CSSProperties;
 }
 
-const paddingClasses = {
-    none: '',
-    sm: 'p-3',
-    md: 'p-4',
-    lg: 'p-6'
+export type { CardProps };
+
+const paddingStyles: Record<string, string> = {
+    none: '0',
+    sm: 'var(--space-3)',
+    md: 'var(--space-5)',
+    lg: 'var(--space-6)'
 };
 
 const Card = ({
@@ -22,19 +25,24 @@ const Card = ({
     glass = false,
     padding = 'md',
     hover = false,
-    onClick
+    onClick,
+    style
 }: CardProps) => {
-    const baseClasses = 'rounded-2xl overflow-hidden';
-    const glassClasses = glass
-        ? 'glass-card'
-        : 'bg-dark-800 border border-white/6';
-    const hoverClasses = hover ? 'card-hover cursor-pointer' : '';
-    const paddingClass = paddingClasses[padding];
-
     return (
         <div
-            className={`${baseClasses} ${glassClasses} ${hoverClasses} ${paddingClass} ${className}`}
+            className={className}
             onClick={onClick}
+            style={{
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                background: glass ? 'var(--bg-glass)' : 'var(--bg-card)',
+                border: `1px solid ${glass ? 'var(--border-glass)' : 'var(--border-subtle)'}`,
+                backdropFilter: glass ? 'blur(16px)' : undefined,
+                padding: paddingStyles[padding],
+                cursor: hover || onClick ? 'pointer' : undefined,
+                transition: hover ? 'all 0.2s ease' : undefined,
+                ...style
+            }}
         >
             {children}
         </div>

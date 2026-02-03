@@ -7,6 +7,7 @@ export interface Profile {
     displayName: string;
     avatarUrl: string;
     score: number;
+    isPrivate: boolean;
     createdAt: Date;
 }
 
@@ -18,6 +19,7 @@ function toProfile(row: Record<string, unknown>): Profile {
         displayName: row.display_name as string,
         avatarUrl: row.avatar_url as string || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.id}`,
         score: row.score as number || 0,
+        isPrivate: row.is_private as boolean || false,
         createdAt: new Date(row.created_at as string)
     };
 }
