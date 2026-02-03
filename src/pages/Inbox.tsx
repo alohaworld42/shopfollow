@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Inbox as InboxIcon, Sparkles, RefreshCw } from 'lucide-react';
 import { InboxItem } from '../components/inbox';
-import { Card, Button, SkeletonList } from '../components/common';
+import { Button } from '../components/common';
 import { useInbox, useProducts, useToast } from '../hooks';
 
 const Inbox = () => {
@@ -17,7 +17,6 @@ const Inbox = () => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
 
-        // Create product from order using new images array format
         await createProduct({
             name: order.rawData.name,
             images: order.rawData.images,
@@ -37,58 +36,50 @@ const Inbox = () => {
     };
 
     return (
-        <div className="p-4 space-y-4">
+        <div className="inbox-page">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="inbox-header">
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <InboxIcon className="w-6 h-6 text-primary-400" />
+                    <h1>
+                        <InboxIcon size={24} className="text-primary-400" />
                         Inbox
                     </h1>
-                    <p className="text-sm text-white/50 mt-1">
-                        Auto-detected purchases
-                    </p>
+                    <p>Auto-detected purchases</p>
                 </div>
-
-                {/* Refresh Button */}
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => fetchOrders()}
-                    className="text-white/50"
                 >
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh
+                    <RefreshCw size={16} />
                 </Button>
             </div>
 
             {/* Info Card */}
-            <Card glass padding="sm">
-                <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-5 h-5 text-primary-400" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-white/70">
-                            These items were automatically detected from your linked stores or browser extension.
-                            Accept them to share on your profile.
-                        </p>
-                    </div>
+            <div className="inbox-info-card">
+                <div className="inbox-info-icon">
+                    <Sparkles size={20} />
                 </div>
-            </Card>
+                <p>
+                    These items were automatically detected from your linked stores or browser extension.
+                    Accept them to share on your profile.
+                </p>
+            </div>
 
             {/* Orders List */}
-            <div className="space-y-3">
+            <div className="inbox-list">
                 {loading ? (
-                    <SkeletonList count={3} />
+                    <div className="loading-screen" style={{ minHeight: '200px' }}>
+                        <div className="loading-spinner" />
+                    </div>
                 ) : orders.length === 0 ? (
-                    <Card glass className="text-center py-12">
-                        <InboxIcon className="w-12 h-12 text-white/20 mx-auto mb-3" />
-                        <p className="text-white/50">No new purchases</p>
-                        <p className="text-sm text-white/30 mt-1">
-                            New items will appear here automatically
-                        </p>
-                    </Card>
+                    <div className="inbox-empty">
+                        <div className="inbox-empty-icon">
+                            <InboxIcon size={28} />
+                        </div>
+                        <h3>No new purchases</h3>
+                        <p>New items will appear here automatically</p>
+                    </div>
                 ) : (
                     orders.map(order => (
                         <InboxItem
@@ -101,9 +92,9 @@ const Inbox = () => {
                 )}
             </div>
 
-            {/* Pending Count */}
+            {/* Count */}
             {orders.length > 0 && (
-                <p className="text-center text-sm text-white/40">
+                <p className="inbox-count">
                     {orders.length} {orders.length === 1 ? 'item' : 'items'} awaiting confirmation
                 </p>
             )}

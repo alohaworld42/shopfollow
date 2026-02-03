@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { FeedCard, ProductDetail } from '../components/feed';
 import { SkeletonCard } from '../components/common';
-import { useProducts, useToast } from '../hooks';
+import { useAuth, useProducts, useToast } from '../hooks';
 import type { Product } from '../types';
 
 const Feed = () => {
+    const { user } = useAuth();
     const { products, loading, fetchFeedProducts, toggleLike, addComment } = useProducts();
     const { showToast } = useToast();
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -19,7 +20,7 @@ const Feed = () => {
 
     const handleComment = (productId: string, text: string) => {
         addComment(productId, text);
-        showToast('success', 'Kommentar hinzugefügt!');
+        showToast('success', 'Comment added!');
     };
 
     const handleProductClick = (product: Product) => {
@@ -32,39 +33,36 @@ const Feed = () => {
         : null;
 
     return (
-        <div className="py-2">
+        <div className="feed-container">
             {/* Feed */}
             {loading ? (
                 // Skeleton Loading
-                <div className="space-y-6">
-                    {[...Array(3)].map((_, i) => (
-                        <SkeletonCard key={i} />
-                    ))}
-                </div>
+                Array.from({ length: 3 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                ))
             ) : products.length === 0 ? (
                 // Empty State
-                <div className="text-center py-16 px-4">
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
-                        <span className="text-4xl">🛍️</span>
+                <div className="empty-state">
+                    <div className="empty-state-icon">
+                        <span style={{ fontSize: '28px' }}>🛍️</span>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Willkommen bei CartConnect!</h2>
-                    <p className="text-white/50 max-w-xs mx-auto leading-relaxed">
-                        Folge anderen Nutzern, um ihre Einkäufe in deinem Feed zu sehen.
+                    <h3 className="empty-state-title">Welcome to CartConnect!</h3>
+                    <p className="empty-state-text">
+                        Follow other users to see their purchases in your feed.
                     </p>
                 </div>
             ) : (
                 // Products
-                <div>
-                    {products.map(product => (
-                        <FeedCard
-                            key={product.id}
-                            product={product}
-                            onLike={handleLike}
-                            onComment={() => setSelectedProduct(product)}
-                            onClick={() => handleProductClick(product)}
-                        />
-                    ))}
-                </div>
+                products.map(product => (
+                    <FeedCard
+                        key={product.id}
+                        product={product}
+                        onLike={handleLike}
+                        onComment={() => setSelectedProduct(product)}
+                        onClick={() => handleProductClick(product)}
+                        currentUserId={user?.uid}
+                    />
+                ))
             )}
 
             {/* Product Detail Modal */}

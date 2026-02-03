@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { ShoppingBag, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
     const navigate = useNavigate();
     const { signIn } = useAuth();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -29,48 +30,54 @@ export const Login = () => {
 
     return (
         <div className="auth-page">
-            <button className="auth-back" onClick={() => navigate('/welcome')}>
+            {/* Back Button */}
+            <button
+                className="auth-back"
+                onClick={() => navigate('/welcome')}
+            >
                 <ArrowLeft size={20} />
             </button>
 
+            {/* Header */}
             <div className="auth-header">
                 <div className="auth-logo">
-                    <ShoppingBag size={32} />
+                    <ShoppingBag size={28} strokeWidth={1.5} />
                 </div>
-                <h1>Welcome back</h1>
-                <p>Sign in to your CartConnect account</p>
+                <h1>Welcome Back</h1>
+                <p>Sign in to continue</p>
             </div>
 
+            {/* Form */}
             <form className="auth-form" onSubmit={handleSubmit}>
                 {error && (
                     <div className="auth-error">{error}</div>
                 )}
 
+                {/* Email */}
                 <div className="auth-field">
-                    <label htmlFor="email">Email</label>
+                    <label>Email</label>
                     <div className="auth-input-wrapper">
-                        <Mail size={18} />
+                        <Mail size={20} />
                         <input
-                            id="email"
                             type="email"
-                            placeholder="your@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
                             required
                         />
                     </div>
                 </div>
 
+                {/* Password */}
                 <div className="auth-field">
-                    <label htmlFor="password">Password</label>
+                    <label>Password</label>
                     <div className="auth-input-wrapper">
-                        <Lock size={18} />
+                        <Lock size={20} />
                         <input
-                            id="password"
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
                             required
                         />
                         <button
@@ -78,11 +85,12 @@ export const Login = () => {
                             className="auth-toggle-password"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                     </div>
                 </div>
 
+                {/* Submit */}
                 <button
                     type="submit"
                     className="auth-submit"
@@ -92,6 +100,7 @@ export const Login = () => {
                 </button>
             </form>
 
+            {/* Footer */}
             <div className="auth-footer">
                 <p>
                     Don't have an account?{' '}

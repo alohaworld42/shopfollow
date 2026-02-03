@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Avatar } from '../common';
 import type { Product } from '../../types';
 
@@ -13,10 +13,10 @@ interface FeedCardProps {
 
 const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCardProps) => {
     const [imageIndex, setImageIndex] = useState(0);
-    const [isSaved, setIsSaved] = useState(false);
+    const [isSaved, setIsSaved] = useState(currentUserId ? product.saves.includes(currentUserId) : false);
     const [showHeartAnimation, setShowHeartAnimation] = useState(false);
 
-    // Get all images (support both single imageUrl and images array)
+    // Get all images
     const images = product.images?.length > 0 ? product.images : [product.imageUrl];
     const hasMultipleImages = images.length > 1;
 
@@ -30,50 +30,40 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
         setTimeout(() => setShowHeartAnimation(false), 800);
     };
 
-    const handleLikeClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onLike(product.id);
-    };
-
-    const handleSaveClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsSaved(!isSaved);
-    };
-
-    const handlePrevImage = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setImageIndex(prev => prev > 0 ? prev - 1 : images.length - 1);
-    };
-
-    const handleNextImage = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setImageIndex(prev => prev < images.length - 1 ? prev + 1 : 0);
+    const handleShare = async () => {
+        const shareUrl = product.affiliateUrl || product.storeUrl;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: product.name,
+                    text: `Check out ${product.name} at ${product.storeName}`,
+                    url: shareUrl
+                });
+            } catch (err) {
+                console.log('Share cancelled');
+            }
+        } else {
+            navigator.clipboard.writeText(shareUrl);
+        }
     };
 
     const handleShopNow = (e: React.MouseEvent) => {
         e.stopPropagation();
         const url = product.affiliateUrl || product.storeUrl;
-        if (url) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-        }
+        window.open(url, '_blank', 'noopener,noreferrer');
     };
 
     const timeAgo = (date: Date) => {
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
         if (seconds < 60) return 'just now';
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
-        if (seconds < 604800) return `${Math.floor(seconds / 86400)}d`;
-        return `${Math.floor(seconds / 604800)}w`;
-    };
-
-    const formatPrice = (price: number, currency = '€') => {
-        return `${currency}${price.toFixed(2)}`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        return `${Math.floor(seconds / 86400)}d ago`;
     };
 
     return (
         <article className="feed-card">
-            {/* User Header */}
+            {/* Header with User Info */}
             <div className="feed-card-header">
                 <div className="feed-card-user">
                     <Avatar
@@ -83,7 +73,7 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                     />
                     <div>
                         <p className="feed-card-user-name">{product.userName}</p>
-                        <p className="feed-card-time">{timeAgo(product.createdAt)}</p>
+                        <span className="feed-card-time">{timeAgo(product.createdAt)}</span>
                     </div>
                 </div>
             </div>
@@ -109,18 +99,33 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                     ))}
                 </div>
 
+                {/* Heart Animation */}
+                {showHeartAnimation && (
+                    <div className="feed-card-heart-animation">
+                        <Heart size={80} fill="white" color="white" />
+                    </div>
+                )}
+
                 {/* Image Navigation */}
                 {hasMultipleImages && (
                     <>
                         <button
                             className="feed-card-image-nav prev"
-                            onClick={handlePrevImage}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setImageIndex(prev => Math.max(0, prev - 1));
+                            }}
+                            disabled={imageIndex === 0}
                         >
                             <ChevronLeft size={20} />
                         </button>
                         <button
                             className="feed-card-image-nav next"
-                            onClick={handleNextImage}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setImageIndex(prev => Math.min(images.length - 1, prev + 1));
+                            }}
+                            disabled={imageIndex === images.length - 1}
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -134,18 +139,10 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                         </div>
                     </>
                 )}
-
-                {/* Heart Animation */}
-                {showHeartAnimation && (
-                    <div className="feed-card-heart-animation">
-                        <Heart size={80} fill="white" color="white" />
-                    </div>
-                )}
             </div>
 
             {/* Content */}
             <div className="feed-card-content">
-                {/* Product Info */}
                 <h3 className="feed-card-title">{product.name}</h3>
                 <p className="feed-card-store">
                     {product.storeName}
@@ -154,14 +151,13 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                     )}
                 </p>
 
-                {/* Price */}
                 <div className="feed-card-price">
                     <span className="feed-card-price-current">
-                        {formatPrice(product.price, product.currency)}
+                        {product.currency || '€'}{product.price.toFixed(2)}
                     </span>
-                    {product.originalPrice && product.originalPrice > product.price && (
+                    {product.originalPrice && (
                         <span className="feed-card-price-original">
-                            {formatPrice(product.originalPrice, product.currency)}
+                            {product.currency || '€'}{product.originalPrice.toFixed(2)}
                         </span>
                     )}
                 </div>
@@ -169,24 +165,33 @@ const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCa
                 {/* Actions */}
                 <div className="feed-card-actions">
                     <button
-                        onClick={handleLikeClick}
                         className={`feed-card-action ${isLiked ? 'liked' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); onLike(product.id); }}
                     >
                         <Heart size={22} fill={isLiked ? 'currentColor' : 'none'} />
-                        <span>{product.likes.length}</span>
+                        {product.likes.length > 0 && <span>{product.likes.length}</span>}
                     </button>
-                    <button onClick={onComment} className="feed-card-action">
-                        <MessageCircle size={22} />
-                        <span>{product.comments.length}</span>
-                    </button>
-                    <button className="feed-card-action">
-                        <Share2 size={20} />
-                    </button>
+
                     <button
-                        onClick={handleSaveClick}
-                        className={`feed-card-action ${isSaved ? 'saved' : ''}`}
+                        className="feed-card-action"
+                        onClick={(e) => { e.stopPropagation(); onComment(); }}
                     >
-                        <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+                        <MessageCircle size={22} />
+                        {product.comments.length > 0 && <span>{product.comments.length}</span>}
+                    </button>
+
+                    <button
+                        className="feed-card-action"
+                        onClick={(e) => { e.stopPropagation(); handleShare(); }}
+                    >
+                        <Share2 size={22} />
+                    </button>
+
+                    <button
+                        className={`feed-card-action ${isSaved ? 'saved' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setIsSaved(!isSaved); }}
+                    >
+                        {isSaved ? <BookmarkCheck size={22} /> : <Bookmark size={22} />}
                     </button>
 
                     {/* Shop Now Button */}

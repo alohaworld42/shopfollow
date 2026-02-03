@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
-import { NotificationBell } from '../inbox';
+import { ShoppingBag, Bell } from 'lucide-react';
 import { useInbox } from '../../hooks';
 
 const Header = () => {
@@ -11,18 +10,68 @@ const Header = () => {
         <header className="app-header">
             <div className="app-header-inner">
                 {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
-                        <ShoppingBag className="w-5 h-5 text-white" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <ShoppingBag size={20} color="white" />
                     </div>
-                    <span className="text-xl font-bold gradient-text">CartConnect</span>
+                    <span style={{
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        background: 'linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-secondary) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        CartConnect
+                    </span>
                 </div>
 
-                {/* Notifications */}
-                <NotificationBell
-                    count={unreadCount}
+                {/* Notification Bell */}
+                <button
                     onClick={() => navigate('/inbox')}
-                />
+                    style={{
+                        position: 'relative',
+                        width: '44px',
+                        height: '44px',
+                        background: 'var(--bg-glass)',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: 'var(--text-primary)'
+                    }}
+                >
+                    <Bell size={20} />
+                    {unreadCount > 0 && (
+                        <span style={{
+                            position: 'absolute',
+                            top: '6px',
+                            right: '6px',
+                            width: '18px',
+                            height: '18px',
+                            background: 'var(--color-error)',
+                            borderRadius: '50%',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white'
+                        }}>
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    )}
+                </button>
             </div>
         </header>
     );

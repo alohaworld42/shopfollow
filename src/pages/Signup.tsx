@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ShoppingBag, Mail, Lock, User, Eye, EyeOff, ArrowLeft, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingBag, Mail, Lock, User, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
 
 export const Signup = () => {
     const navigate = useNavigate();
     const { signUp } = useAuth();
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,36 +15,25 @@ export const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const passwordChecks = {
-        length: password.length >= 8,
-        letter: /[a-zA-Z]/.test(password),
-        number: /[0-9]/.test(password)
-    };
-
-    const isPasswordValid = passwordChecks.length && passwordChecks.letter && passwordChecks.number;
-    const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+    // Password validation
+    const hasMinLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const passwordsMatch = password === confirmPassword && password.length > 0;
+    const isValid = hasMinLength && hasUppercase && hasNumber && passwordsMatch && name && email;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isValid) return;
+
         setError('');
-
-        if (!isPasswordValid) {
-            setError('Password does not meet requirements');
-            return;
-        }
-
-        if (!passwordsMatch) {
-            setError('Passwords do not match');
-            return;
-        }
-
         setLoading(true);
 
         try {
             await signUp(email, password, name);
             navigate('/');
         } catch (err) {
-            setError('Could not create account. Please try again.');
+            setError('Failed to create account. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -51,63 +41,69 @@ export const Signup = () => {
 
     return (
         <div className="auth-page">
-            <button className="auth-back" onClick={() => navigate('/welcome')}>
+            {/* Back Button */}
+            <button
+                className="auth-back"
+                onClick={() => navigate('/welcome')}
+            >
                 <ArrowLeft size={20} />
             </button>
 
+            {/* Header */}
             <div className="auth-header">
                 <div className="auth-logo">
-                    <ShoppingBag size={32} />
+                    <ShoppingBag size={28} strokeWidth={1.5} />
                 </div>
                 <h1>Create Account</h1>
-                <p>Join CartConnect today</p>
+                <p>Join the shopping community</p>
             </div>
 
+            {/* Form */}
             <form className="auth-form" onSubmit={handleSubmit}>
                 {error && (
                     <div className="auth-error">{error}</div>
                 )}
 
+                {/* Name */}
                 <div className="auth-field">
-                    <label htmlFor="name">Display Name</label>
+                    <label>Full Name</label>
                     <div className="auth-input-wrapper">
-                        <User size={18} />
+                        <User size={20} />
                         <input
-                            id="name"
                             type="text"
-                            placeholder="Your name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            placeholder="Your name"
                             required
                         />
                     </div>
                 </div>
 
+                {/* Email */}
                 <div className="auth-field">
-                    <label htmlFor="email">Email</label>
+                    <label>Email</label>
                     <div className="auth-input-wrapper">
-                        <Mail size={18} />
+                        <Mail size={20} />
                         <input
-                            id="email"
                             type="email"
-                            placeholder="your@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
                             required
                         />
                     </div>
                 </div>
 
+                {/* Password */}
                 <div className="auth-field">
-                    <label htmlFor="password">Password</label>
+                    <label>Password</label>
                     <div className="auth-input-wrapper">
-                        <Lock size={18} />
+                        <Lock size={20} />
                         <input
-                            id="password"
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Create a password"
                             required
                         />
                         <button
@@ -115,54 +111,64 @@ export const Signup = () => {
                             className="auth-toggle-password"
                             onClick={() => setShowPassword(!showPassword)}
                         >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                     </div>
 
-                    {password.length > 0 && (
+                    {/* Password Requirements */}
+                    {password && (
                         <div className="auth-password-checks">
-                            <div className={`auth-check ${passwordChecks.length ? 'valid' : ''}`}>
-                                <Check size={14} /> At least 8 characters
+                            <div className={`auth-check ${hasMinLength ? 'valid' : ''}`}>
+                                {hasMinLength ? <Check size={14} /> : <X size={14} />}
+                                At least 8 characters
                             </div>
-                            <div className={`auth-check ${passwordChecks.letter ? 'valid' : ''}`}>
-                                <Check size={14} /> Contains a letter
+                            <div className={`auth-check ${hasUppercase ? 'valid' : ''}`}>
+                                {hasUppercase ? <Check size={14} /> : <X size={14} />}
+                                One uppercase letter
                             </div>
-                            <div className={`auth-check ${passwordChecks.number ? 'valid' : ''}`}>
-                                <Check size={14} /> Contains a number
+                            <div className={`auth-check ${hasNumber ? 'valid' : ''}`}>
+                                {hasNumber ? <Check size={14} /> : <X size={14} />}
+                                One number
                             </div>
                         </div>
                     )}
                 </div>
 
+                {/* Confirm Password */}
                 <div className="auth-field">
-                    <label htmlFor="confirmPassword">Confirm Password</label>
+                    <label>Confirm Password</label>
                     <div className="auth-input-wrapper">
-                        <Lock size={18} />
+                        <Lock size={20} />
                         <input
-                            id="confirmPassword"
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm your password"
                             required
                         />
-                        {confirmPassword.length > 0 && (
-                            <span className={`auth-match-indicator ${passwordsMatch ? 'valid' : 'invalid'}`}>
+                        {confirmPassword && (
+                            <span style={{
+                                color: passwordsMatch ? 'var(--color-success)' : 'var(--color-error)',
+                                fontSize: '18px',
+                                fontWeight: 600
+                            }}>
                                 {passwordsMatch ? '✓' : '✗'}
                             </span>
                         )}
                     </div>
                 </div>
 
+                {/* Submit */}
                 <button
                     type="submit"
                     className="auth-submit"
-                    disabled={loading || !isPasswordValid || !passwordsMatch}
+                    disabled={!isValid || loading}
                 >
                     {loading ? 'Creating Account...' : 'Create Account'}
                 </button>
             </form>
 
+            {/* Footer */}
             <div className="auth-footer">
                 <p>
                     Already have an account?{' '}
