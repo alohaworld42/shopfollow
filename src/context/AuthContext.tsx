@@ -4,6 +4,8 @@ import {
     signIn as authSignIn,
     signUp as authSignUp,
     signOut as authSignOut,
+    signInWithGoogle as authSignInWithGoogle,
+    signInWithApple as authSignInWithApple,
     getCurrentUser,
     onAuthStateChange,
     updateProfile as authUpdateProfile,
@@ -149,6 +151,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser({ ...user, ...data });
     };
 
+    const handleSignInWithGoogle = async () => {
+        await authSignInWithGoogle();
+    };
+
+    const handleSignInWithApple = async () => {
+        await authSignInWithApple();
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -157,6 +167,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 signIn: handleSignIn,
                 signUp: handleSignUp,
                 signOut: handleSignOut,
+                signInWithGoogle: handleSignInWithGoogle,
+                signInWithApple: handleSignInWithApple,
                 updateProfile
             }}
         >

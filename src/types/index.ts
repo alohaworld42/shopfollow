@@ -142,6 +142,8 @@ export interface AuthContextType {
     signIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string, displayName: string) => Promise<void>;
     signOut: () => Promise<void>;
+    signInWithGoogle: () => Promise<void>;
+    signInWithApple: () => Promise<void>;
     updateProfile: (data: Partial<User>) => Promise<void>;
 }
 

@@ -86,6 +86,67 @@ export async function signOut(): Promise<void> {
     if (error) throw error;
 }
 
+// Sign in with Google OAuth
+export async function signInWithGoogle(): Promise<void> {
+    if (!isSupabaseConfigured) {
+        throw new Error('Supabase not configured');
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: `${window.location.origin}/`,
+            queryParams: {
+                access_type: 'offline',
+                prompt: 'consent'
+            }
+        }
+    });
+
+    if (error) throw error;
+}
+
+// Sign in with Apple OAuth
+export async function signInWithApple(): Promise<void> {
+    if (!isSupabaseConfigured) {
+        throw new Error('Supabase not configured');
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+            redirectTo: `${window.location.origin}/`
+        }
+    });
+
+    if (error) throw error;
+}
+
+// Resend email verification
+export async function resendVerificationEmail(): Promise<void> {
+    if (!isSupabaseConfigured) {
+        throw new Error('Supabase not configured');
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) throw new Error('No user email found');
+
+    const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email
+    });
+
+    if (error) throw error;
+}
+
+// Check if email is verified
+export async function isEmailVerified(): Promise<boolean> {
+    if (!isSupabaseConfigured) return true;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.email_confirmed_at != null;
+}
+
 // Get current user session
 export async function getCurrentUser(): Promise<Profile | null> {
     if (!isSupabaseConfigured) return null;
