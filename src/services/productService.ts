@@ -289,68 +289,7 @@ export async function addComment(productId: string, userId: string, text: string
     };
 }
 
-// Mock products for demo mode
+// Mock products disabled - using real Supabase data
 function getMockProducts(): Product[] {
-    const now = new Date();
-    return [
-        {
-            id: '1',
-            userId: 'demo-user',
-            userName: 'Sarah Miller',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-            name: 'Nike Air Max 90',
-            images: ['https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&q=80'],
-            imageUrl: 'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&q=80',
-            price: 139.99,
-            currency: '€',
-            storeName: 'Nike',
-            storeUrl: 'https://nike.com',
-            hasAffiliateLink: true,
-            affiliateUrl: 'https://nike.com?ref=cartconnect',
-            visibility: 'public',
-            likes: ['user1', 'user2'],
-            comments: [],
-            saves: [],
-            createdAt: new Date(now.getTime() - 3600000)
-        },
-        {
-            id: '2',
-            userId: 'demo-user-2',
-            userName: 'Max Schmidt',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=max',
-            name: 'Apple AirPods Pro',
-            images: ['https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&q=80'],
-            imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&q=80',
-            price: 279.00,
-            currency: '€',
-            storeName: 'Apple',
-            storeUrl: 'https://apple.com',
-            hasAffiliateLink: false,
-            visibility: 'public',
-            likes: ['user1'],
-            comments: [],
-            saves: [],
-            createdAt: new Date(now.getTime() - 7200000)
-        },
-        {
-            id: '3',
-            userId: 'demo-user-3',
-            userName: 'Lisa Weber',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisa',
-            name: 'Minimalist Watch',
-            images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80'],
-            imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80',
-            price: 189.00,
-            currency: '€',
-            storeName: 'Nordstrom',
-            storeUrl: 'https://nordstrom.com',
-            hasAffiliateLink: true,
-            affiliateUrl: 'https://nordstrom.com?ref=cartconnect',
-            visibility: 'public',
-            likes: [],
-            comments: [],
-            saves: [],
-            createdAt: new Date(now.getTime() - 14400000)
-        }
-    ];
+    return [];
 }

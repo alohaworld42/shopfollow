@@ -4,69 +4,8 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import * as userService from '../services/userService';
 import type { User, Group } from '../types';
 
-// Demo users for development
-const DEMO_USERS: User[] = [
-    {
-        uid: 'user-2',
-        email: 'sarah@example.com',
-        displayName: 'Sarah Miller',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-        score: 890,
-        following: ['demo-user-1', 'user-3'],
-        followers: ['demo-user-1', 'user-4'],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    },
-    {
-        uid: 'user-3',
-        email: 'max@example.com',
-        displayName: 'Max Weber',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=max',
-        score: 1540,
-        following: ['user-2'],
-        followers: ['demo-user-1', 'user-2'],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    },
-    {
-        uid: 'user-4',
-        email: 'emma@example.com',
-        displayName: 'Emma Schmidt',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emma',
-        score: 720,
-        following: ['user-2', 'user-5'],
-        followers: ['demo-user-1'],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    },
-    {
-        uid: 'user-5',
-        email: 'luca@example.com',
-        displayName: 'Luca Fischer',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=luca',
-        score: 450,
-        following: [],
-        followers: ['user-4'],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    },
-    {
-        uid: 'user-6',
-        email: 'nina@example.com',
-        displayName: 'Nina Braun',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nina',
-        score: 320,
-        following: [],
-        followers: [],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    }
-];
+// Demo users disabled - using real Supabase data
+const DEMO_USERS: User[] = [];
 
 export const useUsers = () => {
     const { user, updateProfile } = useAuth();
@@ -74,7 +13,7 @@ export const useUsers = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const isDemoMode = !isSupabaseConfigured || (user?.uid && (user.uid.startsWith('demo-') || user.uid.startsWith('user-')));
+    const isDemoMode = !isSupabaseConfigured;
 
     // Fetch suggested users
     const fetchSuggestedUsers = useCallback(async () => {

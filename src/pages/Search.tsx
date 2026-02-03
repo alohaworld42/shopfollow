@@ -7,33 +7,8 @@ import { UserCard } from '../components/network';
 import * as searchService from '../services/searchService';
 import type { Product, User } from '../types';
 
-// Demo data for non-configured Supabase
-const DEMO_USERS: User[] = [
-    {
-        uid: 'user-2',
-        email: 'sarah@example.com',
-        displayName: 'Sarah Miller',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-        score: 890,
-        following: [],
-        followers: [],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    },
-    {
-        uid: 'user-3',
-        email: 'max@example.com',
-        displayName: 'Max Weber',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=max',
-        score: 1540,
-        following: [],
-        followers: [],
-        groups: [],
-        isPrivate: false,
-        createdAt: new Date()
-    }
-];
+// Demo users disabled - using real Supabase data
+const DEMO_USERS: User[] = [];
 
 const Search = () => {
     const { user } = useAuth();

@@ -15,17 +15,17 @@ export interface DashboardStats {
     following: number;
 }
 
-// Mock stats for demo mode
+// Default empty stats for fallback
 const DEMO_STATS: DashboardStats = {
-    earnings: 1250.50,
-    clicks: 342,
-    orders: 12,
-    reach: 4500,
-    totalProducts: 8,
-    totalLikes: 45,
-    totalComments: 23,
-    followers: 156,
-    following: 89
+    earnings: 0,
+    clicks: 0,
+    orders: 0,
+    reach: 0,
+    totalProducts: 0,
+    totalLikes: 0,
+    totalComments: 0,
+    followers: 0,
+    following: 0
 };
 
 /**

@@ -16,7 +16,7 @@ export const useProducts = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const isDemoMode = !isSupabaseConfigured || (user?.uid && (user.uid.startsWith('demo-') || user.uid.startsWith('user-')));
+    const isDemoMode = !isSupabaseConfigured;
 
     // Fetch feed products
     const fetchFeedProducts = useCallback(async () => {

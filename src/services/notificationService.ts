@@ -172,39 +172,7 @@ function urlBase64ToUint8Array(base64String: string) {
     return outputArray;
 }
 
-// Demo notifications
+// Demo notifications disabled - using real Supabase data
 function getDemoNotifications(): Notification[] {
-    const now = new Date();
-    return [
-        {
-            id: 'demo-1',
-            userId: 'demo-user-1',
-            type: 'follow',
-            title: 'New Follower',
-            body: 'Sarah Miller started following you',
-            data: { follower_id: 'user-2' },
-            readAt: null,
-            createdAt: new Date(now.getTime() - 1000 * 60 * 30)
-        },
-        {
-            id: 'demo-2',
-            userId: 'demo-user-1',
-            type: 'like',
-            title: 'New Like',
-            body: 'Max Weber liked your post "Designer Sneakers"',
-            data: { product_id: 'prod-1' },
-            readAt: null,
-            createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 2)
-        },
-        {
-            id: 'demo-3',
-            userId: 'demo-user-1',
-            type: 'order',
-            title: 'New Purchase Detected',
-            body: 'A new item from Amazon is ready to share',
-            data: { order_id: 'order-1' },
-            readAt: new Date(now.getTime() - 1000 * 60 * 60),
-            createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 5)
-        }
-    ];
+    return [];
 }

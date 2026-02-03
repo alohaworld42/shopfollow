@@ -142,44 +142,9 @@ export async function getUnreadCount(userId: string): Promise<number> {
     return count || 0;
 }
 
-// Mock staging orders for demo mode
+// Mock staging orders disabled - using real Supabase data
 function getMockStagingOrders(): StagingOrder[] {
-    const now = new Date();
-    return [
-        {
-            id: 'mock-1',
-            userId: 'demo-user',
-            source: 'scraper',
-            rawData: {
-                name: 'Wireless Charging Pad',
-                price: 39.99,
-                currency: '€',
-                storeName: 'Amazon',
-                storeUrl: 'https://amazon.com',
-                images: ['https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80']
-            },
-            status: 'pending',
-            createdAt: new Date(now.getTime() - 1800000)
-        },
-        {
-            id: 'mock-2',
-            userId: 'demo-user',
-            source: 'browser',
-            rawData: {
-                name: 'Sustainable Water Bottle',
-                price: 34.00,
-                currency: '€',
-                storeName: 'Etsy',
-                storeUrl: 'https://etsy.com',
-                images: [
-                    'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&q=80',
-                    'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=800&q=80'
-                ]
-            },
-            status: 'pending',
-            createdAt: new Date(now.getTime() - 3600000)
-        }
-    ];
+    return [];
 }
 
 // Simulate incoming order (for demo)
