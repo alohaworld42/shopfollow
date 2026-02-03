@@ -1,0 +1,59 @@
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Search, Users, Bell, User, Plus, Settings, ShoppingBag } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
+const navItems = [
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/search', icon: Search, label: 'Explore' },
+    { path: '/network', icon: Users, label: 'Network' },
+    { path: '/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/purchases', icon: ShoppingBag, label: 'Purchases' },
+    { path: '/profile', icon: User, label: 'Profile' },
+];
+
+export const Sidebar = () => {
+    const location = useLocation();
+    const { user } = useAuth();
+
+    return (
+        <aside className="desktop-sidebar">
+            <div className="sidebar-header">
+                <Link to="/" className="sidebar-logo">
+                    <span className="logo-icon">🛍️</span>
+                    <span className="logo-text">ShopFollow</span>
+                </Link>
+            </div>
+
+            <nav className="sidebar-nav">
+                {navItems.map(({ path, icon: Icon, label }) => (
+                    <Link
+                        key={path}
+                        to={path}
+                        className={`sidebar-nav-item ${location.pathname === path ? 'active' : ''}`}
+                    >
+                        <Icon size={22} />
+                        <span>{label}</span>
+                    </Link>
+                ))}
+            </nav>
+
+            <div className="sidebar-actions">
+                <Link to="/profile" className="sidebar-create-btn">
+                    <Plus size={20} />
+                    <span>New Post</span>
+                </Link>
+            </div>
+
+            {user && (
+                <div className="sidebar-footer">
+                    <Link to="/settings" className="sidebar-settings">
+                        <Settings size={20} />
+                        <span>Settings</span>
+                    </Link>
+                </div>
+            )}
+        </aside>
+    );
+};
+
+export default Sidebar;
