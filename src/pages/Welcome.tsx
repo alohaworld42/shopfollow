@@ -77,14 +77,6 @@ export const Welcome = () => {
                     Sign In
                 </button>
             </div>
-
-            {/* Demo Link */}
-            <button
-                className="welcome-demo-link"
-                onClick={() => navigate('/demo')}
-            >
-                Try Demo Mode →
-            </button>
         </div>
     );
 };

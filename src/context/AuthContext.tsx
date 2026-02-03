@@ -37,23 +37,6 @@ function profileToUser(profile: Profile, followers: string[] = [], following: st
     };
 }
 
-// Demo user for demo mode
-const DEMO_USER: User = {
-    uid: 'demo-user-1',
-    email: 'demo@cartconnect.app',
-    displayName: 'Alex Demo',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo-user-1',
-    score: 1250,
-    following: ['user-2', 'user-3'],
-    followers: ['user-2', 'user-4', 'user-5'],
-    groups: [
-        { id: 'group-1', name: 'Familie', members: ['user-2', 'user-3'] },
-        { id: 'group-2', name: 'Beste Freunde', members: ['user-4', 'user-5'] }
-    ],
-    isPrivate: false,
-    createdAt: new Date()
-};
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -93,11 +76,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }, []);
 
     const handleSignIn = async (email: string, password: string) => {
-        // Demo login check
-        if (email === 'demo@cartconnect.app' || !isSupabaseConfigured) {
-            console.log('🎭 Logging in as Demo User');
-            setUser(DEMO_USER);
-            return;
+        if (!isSupabaseConfigured) {
+            throw new Error('Supabase not configured. Please add environment variables.');
         }
 
         setLoading(true);
@@ -106,22 +86,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const followers = await getFollowers(profile.id);
             const following = await getFollowing(profile.id);
             setUser(profileToUser(profile, followers, following));
+        } catch (error) {
+            setLoading(false);
+            throw error; // Re-throw so Login page can display error
         } finally {
             setLoading(false);
         }
     };
 
     const handleSignUp = async (email: string, password: string, displayName: string) => {
-        // Demo mode - just use demo user with custom name
         if (!isSupabaseConfigured) {
-            setUser({ ...DEMO_USER, displayName, email });
-            return;
+            throw new Error('Supabase not configured. Please add environment variables.');
         }
 
         setLoading(true);
         try {
             const profile = await authSignUp(email, password, displayName);
             setUser(profileToUser(profile));
+        } catch (error) {
+            setLoading(false);
+            throw error; // Re-throw so Signup page can display error
         } finally {
             setLoading(false);
         }
