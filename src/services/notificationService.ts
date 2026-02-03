@@ -114,6 +114,64 @@ export function subscribeToNotifications(
     };
 }
 
+// Web Push Subscription
+export async function subscribeToPushNotifications(userId: string) {
+    if (!isSupabaseConfigured) return null;
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('Push messaging is not supported');
+        return null;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+
+        // VAPID Public Key (Ideally from env, but hardcoded for now or fetched)
+        // You need to generate this pair. For now using a placeholder or needing env.
+        const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!vapidPublicKey) {
+            console.error('Missing VAPID Public Key');
+            return null;
+        }
+
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        });
+
+        // Save to Supabase
+        const { error } = await supabase.from('push_subscriptions').upsert({
+            user_id: userId,
+            endpoint: subscription.endpoint,
+            p256dh: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('p256dh')!)))),
+            auth: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('auth')!)))),
+            user_agent: navigator.userAgent
+        }, { onConflict: 'endpoint' });
+
+        if (error) throw error;
+
+        return subscription;
+    } catch (error) {
+        console.error('Failed to subscribe to push:', error);
+        return null;
+    }
+}
+
+function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
 // Demo notifications
 function getDemoNotifications(): Notification[] {
     const now = new Date();

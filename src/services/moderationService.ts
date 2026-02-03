@@ -1,7 +1,7 @@
 // Moderation Service
 // Handles content moderation, user blocking, and reporting
 
-import { supabase } from './supabase';
+import { supabase } from '../lib/supabase';
 
 export type ReportReason =
     | 'spam'

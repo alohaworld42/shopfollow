@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Button, Card } from '../components/common';
 import { useAuth } from '../hooks';
-import { supabase } from '../services/supabase';
+import { supabase } from '../lib/supabase';
 
 interface ModerationFlag {
     id: string;
