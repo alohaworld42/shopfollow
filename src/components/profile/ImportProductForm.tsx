@@ -71,6 +71,14 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
             });
 
             if (error) throw error;
+
+            // Handle blocked domains
+            if (data && data.blocked) {
+                alert(`⚠️ ${data.storeName || 'This site'} blocks automated requests.\n\nPlease fill in the product details manually.`);
+                if (data.storeName) setStoreName(data.storeName);
+                return;
+            }
+
             if (data && data.success) {
                 if (data.title) setName(data.title.trim());
                 if (data.image) setImageUrl(data.image);
@@ -79,6 +87,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
             }
         } catch (error) {
             console.error('Scraping failed:', error);
+            alert('Auto-fill failed. Please enter details manually.');
         } finally {
             setScraping(false);
         }

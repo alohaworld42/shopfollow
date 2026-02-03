@@ -4,46 +4,8 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import * as inboxService from '../services/inboxService';
 import type { StagingOrder } from '../types';
 
-// Demo staging orders with new type structure
-const DEMO_ORDERS: StagingOrder[] = [
-    {
-        id: 'order-1',
-        userId: 'demo-user-1',
-        source: 'scraper',
-        rawData: {
-            name: 'Wireless Charging Pad Pro',
-            price: 39.99,
-            currency: '€',
-            storeName: 'Amazon',
-            storeUrl: 'https://amazon.com',
-            images: [
-                'https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=800&q=80'
-            ]
-        },
-        status: 'pending',
-        createdAt: new Date(Date.now() - 1000 * 60 * 5)
-    },
-    {
-        id: 'order-2',
-        userId: 'demo-user-1',
-        source: 'browser',
-        rawData: {
-            name: 'Ceramic Coffee Mug Set',
-            description: 'Handmade artisan mugs',
-            price: 45.00,
-            currency: '€',
-            storeName: 'Etsy',
-            storeUrl: 'https://etsy.com',
-            images: [
-                'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80',
-                'https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=800&q=80'
-            ],
-            category: 'Home & Living'
-        },
-        status: 'pending',
-        createdAt: new Date(Date.now() - 1000 * 60 * 30)
-    }
-];
+// Demo staging orders disabled for production
+const DEMO_ORDERS: StagingOrder[] = [];
 
 export const useInbox = () => {
     const { user } = useAuth();
