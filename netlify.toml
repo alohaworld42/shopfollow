@@ -6,6 +6,8 @@
 # Environment variables for build
 [build.environment]
   NODE_VERSION = "20"
+  # Supabase anon key is PUBLIC (security is via RLS policies)
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_VAPID_PUBLIC_KEY"
 
 # SPA redirect for client-side routing
 [[redirects]]
