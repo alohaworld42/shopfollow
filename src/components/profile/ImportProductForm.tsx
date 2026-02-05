@@ -14,8 +14,10 @@ interface ImportProductFormProps {
         storeName: string;
         storeUrl: string;
         category?: string;
+        categoryId?: string;
         visibility: Visibility;
         groupId?: string;
+        affiliateUrl?: string;
     }) => void;
     groups: Group[];
 }
@@ -99,6 +101,21 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
         setLoading(true);
         try {
+            // Generate affiliate link
+            let finalAffiliateUrl = undefined;
+            if (storeUrl) {
+                try {
+                    const { data: affData } = await supabase.functions.invoke('generate-affiliate-link', {
+                        body: { url: storeUrl }
+                    });
+                    if (affData?.success && affData?.affiliatedUrl) {
+                        finalAffiliateUrl = affData.affiliatedUrl;
+                    }
+                } catch (err) {
+                    console.warn('Affiliate link generation failed', err);
+                }
+            }
+
             await onSubmit({
                 name,
                 images: [imageUrl],
@@ -107,7 +124,8 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                 storeUrl,
                 category,
                 visibility,
-                groupId: visibility === 'group' ? groupId : undefined
+                groupId: visibility === 'group' ? groupId : undefined,
+                affiliateUrl: finalAffiliateUrl
             });
             // Reset form
             setName('');

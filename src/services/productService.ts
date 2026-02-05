@@ -36,7 +36,7 @@ export async function getFeedProducts(userId?: string, limit = 20): Promise<Prod
     const { data, error } = await supabase
         .from('products_with_details')
         .select('*')
-        .eq('visibility', 'public')
+        // .eq('visibility', 'public') -- Removed to allow RLS to handle Group/Private visibility
         .order('created_at', { ascending: false })
         .limit(limit);
 
@@ -49,6 +49,7 @@ export async function getFeedProducts(userId?: string, limit = 20): Promise<Prod
         const product = toProduct(row);
         product.likes = await getProductLikes(product.id);
         product.comments = await getProductComments(product.id);
+        product.saves = await getProductSaves(product.id);
         return product;
     }));
 
@@ -76,12 +77,13 @@ export async function getUserProducts(userId: string): Promise<Product[]> {
         const product = toProduct(row);
         product.likes = await getProductLikes(product.id);
         product.comments = await getProductComments(product.id);
+        product.saves = await getProductSaves(product.id);
         return product;
     }));
 }
 
 // Get likes for a product
-async function getProductLikes(productId: string): Promise<string[]> {
+export async function getProductLikes(productId: string): Promise<string[]> {
     const { data, error } = await supabase
         .from('likes')
         .select('user_id')
@@ -92,7 +94,7 @@ async function getProductLikes(productId: string): Promise<string[]> {
 }
 
 // Get comments for a product
-async function getProductComments(productId: string): Promise<Comment[]> {
+export async function getProductComments(productId: string): Promise<Comment[]> {
     const { data, error } = await supabase
         .from('comments')
         .select('id, text, created_at, user_id')
@@ -221,6 +223,43 @@ export async function toggleLike(productId: string, userId: string): Promise<boo
     } else {
         await supabase
             .from('likes')
+            .insert({ product_id: productId, user_id: userId });
+        return true;
+    }
+}
+
+// Get saves for a product
+export async function getProductSaves(productId: string): Promise<string[]> {
+    const { data, error } = await supabase
+        .from('saves')
+        .select('user_id')
+        .eq('product_id', productId);
+
+    if (error) return [];
+    return data.map(row => row.user_id);
+}
+
+// Toggle save on a product
+export async function toggleSave(productId: string, userId: string): Promise<boolean> {
+    if (!isSupabaseConfigured) return true;
+
+    const { data: existing } = await supabase
+        .from('saves')
+        .select('*')
+        .eq('product_id', productId)
+        .eq('user_id', userId)
+        .single();
+
+    if (existing) {
+        await supabase
+            .from('saves')
+            .delete()
+            .eq('product_id', productId)
+            .eq('user_id', userId);
+        return false;
+    } else {
+        await supabase
+            .from('saves')
             .insert({ product_id: productId, user_id: userId });
         return true;
     }

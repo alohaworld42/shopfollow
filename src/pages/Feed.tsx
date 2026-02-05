@@ -6,7 +6,7 @@ import type { Product } from '../types';
 
 const Feed = () => {
     const { user } = useAuth();
-    const { products, loading, fetchFeedProducts, toggleLike, addComment } = useProducts();
+    const { products, loading, fetchFeedProducts, toggleLike, toggleSave, addComment } = useProducts();
     const { showToast } = useToast();
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -58,7 +58,8 @@ const Feed = () => {
                         key={product.id}
                         product={product}
                         onLike={handleLike}
-                        onComment={() => setSelectedProduct(product)}
+                        onSave={toggleSave}
+                        onComment={() => handleProductClick(product)}
                         onClick={() => handleProductClick(product)}
                         currentUserId={user?.uid}
                     />

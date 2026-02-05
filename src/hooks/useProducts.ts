@@ -78,6 +78,28 @@ export const useProducts = () => {
         }
     }, [user, isDemoMode]);
 
+    // Toggle save
+    const toggleSave = useCallback(async (productId: string) => {
+        if (!user) return;
+
+        setProducts(prev => prev.map(p => {
+            if (p.id === productId) {
+                const isSaved = p.saves.includes(user.uid);
+                return {
+                    ...p,
+                    saves: isSaved
+                        ? p.saves.filter(id => id !== user.uid)
+                        : [...p.saves, user.uid]
+                };
+            }
+            return p;
+        }));
+
+        if (!isDemoMode) {
+            await productService.toggleSave(productId, user.uid);
+        }
+    }, [user, isDemoMode]);
+
     // Add comment
     const addComment = useCallback(async (productId: string, text: string) => {
         if (!user) return;
@@ -195,6 +217,7 @@ export const useProducts = () => {
         fetchFeedProducts,
         fetchUserProducts,
         toggleLike,
+        toggleSave,
         addComment,
         createProduct,
         updateProduct,

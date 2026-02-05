@@ -77,7 +77,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const handleSignIn = async (email: string, password: string) => {
         if (!isSupabaseConfigured) {
-            throw new Error('Supabase not configured. Please add environment variables.');
+            // Demo/Mock Login
+            console.log('🎭 Performing Demo Login');
+            setLoading(true);
+
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const mockUser: User = {
+                uid: 'demo-user-123',
+                email: email,
+                displayName: 'Demo User',
+                avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+                score: 100,
+                followers: [],
+                following: [],
+                groups: [],
+                isPrivate: false,
+                createdAt: new Date()
+            };
+
+            setUser(mockUser);
+            setLoading(false);
+            return;
         }
 
         setLoading(true);
@@ -96,7 +118,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const handleSignUp = async (email: string, password: string, displayName: string) => {
         if (!isSupabaseConfigured) {
-            throw new Error('Supabase not configured. Please add environment variables.');
+            // Demo/Mock Signup
+            console.log('🎭 Performing Demo Signup');
+            setLoading(true);
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const mockUser: User = {
+                uid: `demo-user-${Date.now()}`,
+                email: email,
+                displayName: displayName,
+                avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+                score: 0,
+                followers: [],
+                following: [],
+                groups: [],
+                isPrivate: false,
+                createdAt: new Date()
+            };
+
+            setUser(mockUser);
+            setLoading(false);
+            return;
         }
 
         setLoading(true);
@@ -124,6 +167,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (!user) return;
 
         if (!isSupabaseConfigured) {
+            console.log('🎭 Demo Profile Update', data);
             setUser({ ...user, ...data });
             return;
         }

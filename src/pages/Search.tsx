@@ -5,6 +5,7 @@ import { useProducts, useAuth } from '../hooks';
 import { FeedCard } from '../components/feed';
 import { UserCard } from '../components/network';
 import * as searchService from '../services/searchService';
+import { toggleSave as toggleSaveService, toggleLike as toggleLikeService } from '../services/productService';
 import type { Product, User } from '../types';
 
 // Demo users disabled - using real Supabase data
@@ -12,7 +13,7 @@ const DEMO_USERS: User[] = [];
 
 const Search = () => {
     const { user } = useAuth();
-    const { products: demoProducts, toggleLike, fetchFeedProducts } = useProducts();
+    const { products: demoProducts, fetchFeedProducts } = useProducts();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'products' | 'people'>('products');
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -49,8 +50,6 @@ const Search = () => {
                     const filtered = demoProducts.filter(p => {
                         const matchesText = p.name.toLowerCase().includes(query.toLowerCase()) ||
                             p.storeName.toLowerCase().includes(query.toLowerCase());
-                        // Mock products don't usually have categories, so ignore category filter in demo
-                        // or implement if mock data has it.
                         return matchesText;
                     });
                     setSearchResults(filtered);
@@ -94,21 +93,53 @@ const Search = () => {
         }
     };
 
-    const displayProducts = (searchTerm || selectedCategory) ? searchResults : (isDemoMode ? demoProducts : trendingProducts);
-
-    // If no search term but category selected, show trending/recent in that category as "results"
-    // Use searchResults if searchTerm is present OR selectedCategory is present.
-    // However, getTrendingProducts already fetched "category-specific trending", so we could use that if searchTerm is empty.
-
-    // Logic:
-    // If searchTerm: use searchResults (which calls searchProducts(term, category))
-    // If !searchTerm but selectedCategory: searchProducts('', category) -> fetches recent in category. 
-    // Wait, searchProducts with empty query fetches recent in category? Yes, logic in service supports it.
-    // So `handleSearch(searchTerm, selectedCategory)` covers both cases.
-
     const finalDisplayProducts = (searchTerm || selectedCategory) ? searchResults : trendingProducts;
 
     const categories = ['Fashion', 'Beauty', 'Home', 'Fitness', 'Family', 'Sale'];
+
+    const handleSave = async (productId: string) => {
+        if (!user) return;
+
+        const updateList = (list: Product[]) => list.map(p => {
+            if (p.id === productId) {
+                const isSaved = p.saves.includes(user.uid);
+                return {
+                    ...p,
+                    saves: isSaved ? p.saves.filter(id => id !== user.uid) : [...p.saves, user.uid]
+                };
+            }
+            return p;
+        });
+
+        setSearchResults(prev => updateList(prev));
+        setTrendingProducts(prev => updateList(prev));
+
+        if (!isDemoMode) {
+            await toggleSaveService(productId, user.uid);
+        }
+    };
+
+    const handleLike = async (productId: string) => {
+        if (!user) return;
+
+        const updateList = (list: Product[]) => list.map(p => {
+            if (p.id === productId) {
+                const isLiked = p.likes.includes(user.uid);
+                return {
+                    ...p,
+                    likes: isLiked ? p.likes.filter(id => id !== user.uid) : [...p.likes, user.uid]
+                };
+            }
+            return p;
+        });
+
+        setSearchResults(prev => updateList(prev));
+        setTrendingProducts(prev => updateList(prev));
+
+        if (!isDemoMode) {
+            await toggleLikeService(productId, user.uid);
+        }
+    };
 
     return (
         <div className="feed-container">
@@ -272,9 +303,11 @@ const Search = () => {
                         <FeedCard
                             key={product.id}
                             product={product}
-                            onLike={() => toggleLike(product.id)}
+                            onLike={() => handleLike(product.id)}
+                            onSave={() => handleSave(product.id)}
                             onComment={() => { }}
                             onClick={() => { }}
+                            currentUserId={user?.uid}
                         />
                     ))}
                     {finalDisplayProducts.length === 0 && (

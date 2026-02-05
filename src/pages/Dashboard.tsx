@@ -49,8 +49,10 @@ const Dashboard = () => {
         storeName: string;
         storeUrl: string;
         category?: string;
+        categoryId?: string;
         visibility: Visibility;
         groupId?: string;
+        affiliateUrl?: string;
     }) => {
         try {
             await createProduct(data);

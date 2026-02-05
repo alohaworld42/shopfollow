@@ -5,12 +5,13 @@ import type { Product } from '../../types';
 interface FeedCardProps {
     product: Product;
     onLike: (productId: string) => void;
+    onSave: (productId: string) => void;
     onComment: () => void;
     onClick: () => void;
     currentUserId?: string;
 }
 
-const FeedCard = ({ product, onLike, onComment, onClick, currentUserId }: FeedCardProps) => {
+const FeedCard = ({ product, onLike, onSave, onComment, onClick, currentUserId }: FeedCardProps) => {
     const [imageIndex, setImageIndex] = useState(0);
     const [isSaved, setIsSaved] = useState(currentUserId ? product.saves.includes(currentUserId) : false);
     const [showHeartAnimation, setShowHeartAnimation] = useState(false);
