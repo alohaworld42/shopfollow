@@ -192,14 +192,23 @@ export async function updateProfile(userId: string, updates: Partial<Profile>): 
     if (updates.displayName) dbUpdates.display_name = updates.displayName;
     if (updates.avatarUrl) dbUpdates.avatar_url = updates.avatarUrl;
 
+    // Optimization: Skip DB call if no profile fields to update
+    // This prevents crashes when updating 'following' or 'groups' which are handled elsewhere
+    if (Object.keys(dbUpdates).length === 0) {
+        const current = await getCurrentUser();
+        if (!current) throw new Error('Profile not found');
+        return current;
+    }
+
     const { data, error } = await supabase
         .from('profiles')
         .update(dbUpdates)
         .eq('id', userId)
         .select()
-        .single();
+        .maybeSingle();
 
     if (error) throw error;
+    if (!data) throw new Error('Profile not found');
     return toProfile(data);
 }
 

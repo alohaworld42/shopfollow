@@ -61,7 +61,7 @@ const Purchases = () => {
             </div>
 
             {/* Info Card */}
-            <div className="inbox-info-card">
+            <div className="inbox-info-card glass-card" style={{ padding: '16px' }}>
                 <div className="inbox-info-icon">
                     <AlertCircle size={22} />
                 </div>
@@ -83,14 +83,32 @@ const Purchases = () => {
                         <div className="loading-spinner" />
                     </div>
                 ) : orders.length === 0 ? (
-                    <div className="empty-state">
+                    <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
                         <div className="empty-state-icon">
-                            <ShoppingBag size={32} />
+                            <ShoppingBag size={40} style={{ color: 'var(--color-primary)' }} />
                         </div>
-                        <h3 className="empty-state-title">No new orders found</h3>
-                        <p className="empty-state-text">
+                        <h3 className="empty-state-title" style={{ marginBottom: '8px' }}>No new orders found</h3>
+                        <p className="empty-state-text" style={{ marginBottom: '24px', maxWidth: '280px' }}>
                             Make a purchase at a supported store to see it appear here automatically.
                         </p>
+                        <button
+                            onClick={() => fetchOrders()}
+                            style={{
+                                padding: '12px 24px',
+                                borderRadius: '12px',
+                                background: 'var(--color-primary)',
+                                color: 'white',
+                                border: 'none',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            <RefreshCw size={16} /> Check for Orders
+                        </button>
                     </div>
                 ) : (
                     orders.map(order => (

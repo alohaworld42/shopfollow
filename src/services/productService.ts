@@ -95,6 +95,8 @@ export async function getProductLikes(productId: string): Promise<string[]> {
 
 // Get comments for a product
 export async function getProductComments(productId: string): Promise<Comment[]> {
+    if (!productId) return [];
+
     const { data, error } = await supabase
         .from('comments')
         .select('id, text, created_at, user_id')

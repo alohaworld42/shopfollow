@@ -16,7 +16,7 @@ export const Sidebar = () => {
     const { user } = useAuth();
 
     return (
-        <aside className="desktop-sidebar">
+        <aside className="desktop-sidebar glass-panel">
             <div className="sidebar-header">
                 <Link to="/" className="sidebar-logo">
                     <span className="logo-icon">🛍️</span>

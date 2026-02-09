@@ -80,7 +80,7 @@ const Settings = () => {
                 borderBottom: '1px solid var(--border-subtle)'
             }}>
                 <Link
-                    to="/dashboard"
+                    to="/profile"
                     style={{
                         display: 'flex',
                         alignItems: 'center',

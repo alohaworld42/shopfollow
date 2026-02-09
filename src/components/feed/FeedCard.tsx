@@ -7,11 +7,13 @@ interface FeedCardProps {
     onLike: (productId: string) => void;
     onSave: (productId: string) => void;
     onComment: () => void;
+    onShare?: () => void;
     onClick: () => void;
+    onUserClick?: () => void;
     currentUserId?: string;
 }
 
-const FeedCard = ({ product, onLike, onSave, onComment, onClick, currentUserId }: FeedCardProps) => {
+const FeedCard = ({ product, onLike, onSave, onComment, onShare, onClick, onUserClick, currentUserId }: FeedCardProps) => {
     const [imageIndex, setImageIndex] = useState(0);
     const [isSaved, setIsSaved] = useState(currentUserId ? product.saves.includes(currentUserId) : false);
     const [showHeartAnimation, setShowHeartAnimation] = useState(false);
@@ -62,9 +64,18 @@ const FeedCard = ({ product, onLike, onSave, onComment, onClick, currentUserId }
     };
 
     return (
-        <article className="feed-card">
+        <article className="feed-card glass-card">
             {/* Header - Creator info with generous spacing */}
-            <div className="feed-card-header">
+            <div
+                className="feed-card-header"
+                onClick={(e) => {
+                    if (onUserClick) {
+                        e.stopPropagation();
+                        onUserClick();
+                    }
+                }}
+                style={{ cursor: onUserClick ? 'pointer' : 'default' }}
+            >
                 <div className="feed-card-user">
                     <img
                         src={product.userAvatar}
@@ -191,7 +202,7 @@ const FeedCard = ({ product, onLike, onSave, onComment, onClick, currentUserId }
 
                     <button
                         className="feed-card-action"
-                        onClick={(e) => { e.stopPropagation(); handleShare(); }}
+                        onClick={(e) => { e.stopPropagation(); onShare ? onShare() : handleShare(); }}
                     >
                         <Share2 size={22} strokeWidth={1.5} />
                     </button>

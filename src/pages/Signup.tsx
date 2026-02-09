@@ -117,7 +117,7 @@ export const Signup = () => {
             </div>
 
             {/* Form */}
-            <form className="auth-form" onSubmit={handleSubmit}>
+            <form className="auth-form glass-card" onSubmit={handleSubmit} style={{ padding: '28px', borderRadius: '20px' }}>
                 {error && (
                     <div className="auth-error">{error}</div>
                 )}

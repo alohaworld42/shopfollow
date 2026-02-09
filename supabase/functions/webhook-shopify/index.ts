@@ -1,13 +1,13 @@
 // Shopify Webhook Handler
 // Receives order webhooks from Shopify and creates staging orders
+// Supports email-based user matching
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { createHmac } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-shopify-hmac-sha256, x-shopify-shop-domain",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-shopify-hmac-sha256, x-shopify-shop-domain, x-api-key",
 };
 
 interface ShopifyLineItem {
@@ -65,69 +65,87 @@ serve(async (req) => {
     try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const webhookApiKey = Deno.env.get("WEBHOOK_API_KEY");
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         // Get headers
         const shopifyHmac = req.headers.get("x-shopify-hmac-sha256");
         const shopDomain = req.headers.get("x-shopify-shop-domain");
+        const apiKey = req.headers.get("x-api-key");
 
-        if (!shopDomain) {
+        // Verify API key if configured
+        if (webhookApiKey && apiKey !== webhookApiKey) {
             return new Response(
-                JSON.stringify({ error: "Missing shop domain" }),
-                { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                JSON.stringify({ error: "Invalid API key" }),
+                { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
         }
 
         const body = await req.text();
+        const order: ShopifyOrder = JSON.parse(body);
 
-        // Find shop connection to verify webhook and get user
-        const { data: shopConnection, error: shopError } = await supabase
-            .from("shop_connections")
-            .select("*")
-            .eq("platform", "shopify")
-            .eq("shop_domain", shopDomain)
-            .eq("is_active", true)
-            .single();
-
-        if (shopError || !shopConnection) {
-            console.log("Shop not found:", shopDomain);
+        // Extract customer email from order
+        const customerEmail = order.email?.toLowerCase().trim();
+        if (!customerEmail) {
             return new Response(
-                JSON.stringify({ error: "Shop not connected" }),
-                { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                JSON.stringify({ error: "No customer email in order" }),
+                { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
         }
 
-        // Verify signature
-        if (shopifyHmac) {
-            const isValid = await verifyShopifySignature(
-                body,
-                shopifyHmac,
-                shopConnection.webhook_secret
-            );
+        // Try to find existing user by email
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("uid")
+            .eq("email", customerEmail)
+            .single();
 
-            if (!isValid) {
-                return new Response(
-                    JSON.stringify({ error: "Invalid signature" }),
-                    { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        // Also check shop_connections for legacy support
+        let shopConnection = null;
+        if (shopDomain) {
+            const { data } = await supabase
+                .from("shop_connections")
+                .select("*")
+                .eq("platform", "shopify")
+                .eq("shop_domain", shopDomain)
+                .eq("is_active", true)
+                .single();
+            shopConnection = data;
+
+            // Verify signature if shop connection exists
+            if (shopConnection && shopifyHmac) {
+                const isValid = await verifyShopifySignature(
+                    body,
+                    shopifyHmac,
+                    shopConnection.webhook_secret
                 );
+                if (!isValid) {
+                    return new Response(
+                        JSON.stringify({ error: "Invalid signature" }),
+                        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                    );
+                }
             }
         }
 
-        // Parse order
-        const order: ShopifyOrder = JSON.parse(body);
+        // Determine user_id: prefer shop connection, then email match, else null
+        const userId = shopConnection?.user_id || existingUser?.uid || null;
+        const storeName = shopDomain?.replace(".myshopify.com", "") || "Shopify Store";
 
         // Create staging orders for each line item
         const stagingOrders = order.line_items.map((item) => ({
-            user_id: shopConnection.user_id,
+            user_id: userId,
+            customer_email: customerEmail,
+            matched: !!userId,
             source: "shopify",
             source_order_id: `${order.id}-${item.product_id}`,
             product_name: item.title,
             product_image_url: item.image?.src || `https://via.placeholder.com/400x500.png?text=${encodeURIComponent(item.title)}`,
             product_price: parseFloat(item.price),
-            store_name: shopDomain.replace(".myshopify.com", ""),
-            store_url: `https://${shopDomain}`,
+            store_name: storeName,
+            store_url: shopDomain ? `https://${shopDomain}` : "",
             status: "pending",
-            raw_data: { order_id: order.id, line_item: item }
+            raw_data: { order_id: order.id, line_item: item, shop_domain: shopDomain }
         }));
 
         // Insert staging orders
@@ -148,6 +166,8 @@ serve(async (req) => {
             JSON.stringify({
                 success: true,
                 message: `Created ${stagingOrders.length} staging orders`,
+                matched: !!userId,
+                customer_email: customerEmail,
                 orders: data
             }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

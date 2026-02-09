@@ -74,6 +74,12 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
 
             if (error) throw error;
 
+            // Handle server-side errors returned as 200 OK
+            if (data && data.success === false) {
+                console.error('Scraper error:', data.error);
+                throw new Error(data.error || 'Failed to scrape product');
+            }
+
             // Handle blocked domains
             if (data && data.blocked) {
                 alert(`⚠️ ${data.storeName || 'This site'} blocks automated requests.\n\nPlease fill in the product details manually.`);
@@ -82,14 +88,27 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
             }
 
             if (data && data.success) {
+                if (!data.title && !data.image && !data.price) {
+                    alert('⚠️ Scraper finished but could not find product details.\n\nPlease enter them manually.');
+                    return;
+                }
+
                 if (data.title) setName(data.title.trim());
                 if (data.image) setImageUrl(data.image);
                 if (data.price) setPrice(data.price.toString());
                 if (data.storeName) setStoreName(data.storeName);
+
+                // Show success toast or small indicator if needed
+                // showToast('success', 'Product details found!');
             }
         } catch (error) {
             console.error('Scraping failed:', error);
-            alert('Auto-fill failed. Please enter details manually.');
+            const msg = (error as Error).message;
+            if (msg.includes('API key')) {
+                alert('⚠️ Scraper configuration error: Missing API Key in Supabase.\nPlease add SCRAPER_API_KEY or GEMINI_API_KEY to Edge Function secrets.');
+            } else {
+                alert('Auto-fill not available for this link. Please enter details manually.');
+            }
         } finally {
             setScraping(false);
         }

@@ -85,10 +85,7 @@ const Dashboard = () => {
             ) : (
                 <>
                     {/* Creator Stats Card */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%)',
-                        borderRadius: 'var(--radius-lg)',
-                        border: '1px solid var(--border-subtle)',
+                    <div className="glass-card" style={{
                         padding: 'var(--space-6)',
                         marginBottom: 'var(--space-2)'
                     }}>
@@ -133,7 +130,10 @@ const Dashboard = () => {
                             >
                                 <Plus size={18} /> Create Post
                             </button>
-                            <button className="profile-action-btn secondary">
+                            <button
+                                className="profile-action-btn secondary"
+                                onClick={() => showToast('info', 'Link management coming soon!')}
+                            >
                                 Manage Links
                             </button>
                         </div>
@@ -164,11 +164,30 @@ const Dashboard = () => {
                         </button>
                     </div>
 
-                    {/* Product Grid */}
-                    <ProductGrid
-                        products={products}
-                        onProductClick={setSelectedProduct}
-                    />
+                    {/* Product Grid or Empty State */}
+                    {products.length === 0 ? (
+                        <div className="empty-state glass-card" style={{ margin: '24px 16px', padding: '40px 24px' }}>
+                            <div className="empty-state-icon" style={{ marginBottom: '16px' }}>
+                                <Plus size={40} style={{ color: 'var(--color-primary)' }} />
+                            </div>
+                            <h3 style={{ marginBottom: '8px' }}>Start Sharing</h3>
+                            <p style={{ marginBottom: '24px', maxWidth: '280px' }}>
+                                Add your first product to start earning from your recommendations.
+                            </p>
+                            <button
+                                className="profile-action-btn primary"
+                                onClick={() => setShowImportForm(true)}
+                                style={{ minWidth: '180px' }}
+                            >
+                                <Plus size={18} /> Add First Product
+                            </button>
+                        </div>
+                    ) : (
+                        <ProductGrid
+                            products={products}
+                            onProductClick={setSelectedProduct}
+                        />
+                    )}
 
                     {/* Edit Product Modal */}
                     <EditProductModal

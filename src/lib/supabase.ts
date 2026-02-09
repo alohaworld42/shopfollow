@@ -16,7 +16,17 @@ export const supabase: SupabaseClient = createClient(
         auth: {
             autoRefreshToken: true,
             persistSession: true,
-            detectSessionInUrl: true
+            detectSessionInUrl: true,
+            flowType: 'pkce'
+        },
+        global: {
+            fetch: (url, options = {}) => {
+                // Don't use AbortController with a timeout that can cause issues
+                return fetch(url, {
+                    ...options,
+                    // Ensure we don't hit abort issues with slow connections  
+                });
+            }
         }
     }
 );

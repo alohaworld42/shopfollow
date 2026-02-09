@@ -7,7 +7,7 @@ const Header = () => {
     const { unreadCount } = useInbox();
 
     return (
-        <header className="app-header">
+        <header className="app-header glass-panel" style={{ borderBottom: 'none' }}>
             <div className="app-header-inner">
                 {/* Logo - generous spacing */}
                 <div style={{
@@ -43,19 +43,17 @@ const Header = () => {
                 {/* Notification Bell */}
                 <button
                     onClick={() => navigate('/inbox')}
+                    className="glass-button"
                     style={{
                         position: 'relative',
                         width: '48px',
                         height: '48px',
-                        background: 'var(--bg-card)',
-                        border: '1px solid var(--border-subtle)',
                         borderRadius: '14px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
                         color: 'var(--text-secondary)',
-                        transition: 'all 0.2s'
                     }}
                 >
                     <Bell size={22} strokeWidth={1.5} />

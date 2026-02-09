@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search as SearchIcon, TrendingUp, Sparkles, UserPlus, Store } from 'lucide-react';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { useProducts, useAuth } from '../hooks';
@@ -14,6 +15,7 @@ const DEMO_USERS: User[] = [];
 const Search = () => {
     const { user } = useAuth();
     const { products: demoProducts, fetchFeedProducts } = useProducts();
+    const location = useLocation();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'products' | 'people'>('products');
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -23,6 +25,12 @@ const Search = () => {
     const [loading, setLoading] = useState(false);
 
     const isDemoMode = !isSupabaseConfigured;
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+        }
+    }, [location.state]);
 
     // Load trending products on mount or category change
     useEffect(() => {

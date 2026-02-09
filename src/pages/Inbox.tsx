@@ -56,7 +56,7 @@ const Inbox = () => {
             </div>
 
             {/* Info Card */}
-            <div className="inbox-info-card">
+            <div className="inbox-info-card glass-card" style={{ padding: '16px' }}>
                 <div className="inbox-info-icon">
                     <Sparkles size={20} />
                 </div>
@@ -73,12 +73,30 @@ const Inbox = () => {
                         <div className="loading-spinner" />
                     </div>
                 ) : orders.length === 0 ? (
-                    <div className="inbox-empty">
+                    <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
                         <div className="inbox-empty-icon">
-                            <InboxIcon size={28} />
+                            <InboxIcon size={40} style={{ color: 'var(--color-primary)' }} />
                         </div>
-                        <h3>No new purchases</h3>
-                        <p>New items will appear here automatically</p>
+                        <h3 style={{ marginBottom: '8px' }}>No new purchases</h3>
+                        <p style={{ marginBottom: '24px', maxWidth: '280px' }}>New items will appear here automatically when you shop</p>
+                        <button
+                            onClick={() => fetchOrders()}
+                            style={{
+                                padding: '12px 24px',
+                                borderRadius: '12px',
+                                background: 'var(--color-primary)',
+                                color: 'white',
+                                border: 'none',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            <RefreshCw size={16} /> Refresh
+                        </button>
                     </div>
                 ) : (
                     orders.map(order => (

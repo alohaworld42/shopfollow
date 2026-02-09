@@ -64,7 +64,8 @@ export async function getUser(uid: string): Promise<User | null> {
         .from('profiles')
         .select('*')
         .eq('id', uid)
-        .single();
+        .eq('id', uid)
+        .maybeSingle();
 
     if (error || !data) return null;
 
@@ -111,7 +112,8 @@ export async function followUser(currentUserId: string, targetUserId: string): P
         .from('profiles')
         .select('is_private')
         .eq('id', targetUserId)
-        .single();
+        .eq('id', targetUserId)
+        .maybeSingle();
 
     if (target?.is_private) {
         // Create follow request
@@ -228,7 +230,7 @@ export async function getFollowingUsers(following: string[]): Promise<User[]> {
 export async function createGroup(userId: string, group: Omit<Group, 'id'>): Promise<string> {
     if (!isSupabaseConfigured) return crypto.randomUUID();
 
-    const { data, error } = await supabase.from('groups').insert({ owner_id: userId, name: group.name }).select().single();
+    const { data, error } = await supabase.from('groups').insert({ owner_id: userId, name: group.name }).select().maybeSingle();
     if (error) throw error;
 
     if (group.members.length > 0) {
@@ -264,7 +266,7 @@ export async function deleteGroup(userId: string, groupId: string): Promise<void
 }
 export async function updateScore(userId: string, points: number): Promise<void> {
     if (!isSupabaseConfigured) return;
-    const { data: current } = await supabase.from('profiles').select('score').eq('id', userId).single();
+    const { data: current } = await supabase.from('profiles').select('score').eq('id', userId).maybeSingle();
     const newScore = (current?.score || 0) + points;
     await supabase.from('profiles').update({ score: newScore }).eq('id', userId);
 }

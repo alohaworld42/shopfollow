@@ -4,22 +4,17 @@ import { ToastProvider } from './context/ToastContext';
 import { Layout } from './components/layout';
 import { Feed, Dashboard, Network, Purchases, Search, Reviews, Settings, AdminDashboard, Notifications, Welcome, Login, Signup } from './pages';
 
-// Protected route wrapper
+// Protected route wrapper - non-blocking async loading
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner" />
-      </div>
-    );
-  }
-
-  if (!user) {
+  // Don't block - if still loading, show the content anyway
+  // The AuthContext will redirect if needed once auth is determined
+  if (!loading && !user) {
     return <Navigate to="/welcome" replace />;
   }
 
+  // Show content immediately while auth loads in background
   return <>{children}</>;
 };
 
@@ -27,18 +22,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner" />
-      </div>
-    );
-  }
-
-  if (user) {
+  // Don't block on public routes - show content immediately
+  // Only redirect once we KNOW user is logged in
+  if (!loading && user) {
     return <Navigate to="/" replace />;
   }
 
+  // Show content immediately
   return <>{children}</>;
 };
 
@@ -67,8 +57,8 @@ function AppRoutes() {
           <Layout><Search /></Layout>
         </ProtectedRoute>
       } />
-      {/* Dashboard */}
-      <Route path="/dashboard" element={
+      {/* Profile / Dashboard */}
+      <Route path="/profile" element={
         <ProtectedRoute>
           <Layout><Dashboard /></Layout>
         </ProtectedRoute>

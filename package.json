@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
@@ -23,7 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@playwright/test": "^1.58.1",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

@@ -4,11 +4,14 @@ import { SkeletonCard } from '../components/common';
 import { useAuth, useProducts, useToast } from '../hooks';
 import type { Product } from '../types';
 
+const CATEGORIES = ['All', 'Fashion', 'Tech', 'Home', 'Beauty', 'Sports'];
+
 const Feed = () => {
     const { user } = useAuth();
     const { products, loading, fetchFeedProducts, toggleLike, toggleSave, addComment } = useProducts();
     const { showToast } = useToast();
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [activeCategory, setActiveCategory] = useState('All');
 
     useEffect(() => {
         fetchFeedProducts();
@@ -27,6 +30,17 @@ const Feed = () => {
         setSelectedProduct(product);
     };
 
+    const handleShare = (product: Product) => {
+        const shareUrl = `${window.location.origin}/product/${product.id}`;
+        navigator.clipboard.writeText(shareUrl);
+        showToast('success', 'Link copied to clipboard! 📋');
+    };
+
+    // Filter products by category
+    const filteredProducts = activeCategory === 'All'
+        ? products
+        : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());
+
     // Find updated product for detail modal
     const currentProduct = selectedProduct
         ? products.find(p => p.id === selectedProduct.id) || selectedProduct
@@ -34,33 +48,75 @@ const Feed = () => {
 
     return (
         <div className="feed-container">
+            {/* Category Filters */}
+            <div style={{
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                padding: '16px',
+                marginBottom: '8px',
+                scrollbarWidth: 'none'
+            }}>
+                {CATEGORIES.map(cat => (
+                    <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
+                        style={{
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            border: 'none',
+                            background: activeCategory === cat
+                                ? 'var(--color-primary)'
+                                : 'var(--bg-glass)',
+                            color: activeCategory === cat
+                                ? 'white'
+                                : 'var(--text-secondary)',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+
             {/* Feed */}
             {loading ? (
                 // Skeleton Loading
                 Array.from({ length: 3 }).map((_, i) => (
                     <SkeletonCard key={i} />
                 ))
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
                 // Empty State
-                <div className="empty-state">
+                <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
                     <div className="empty-state-icon">
-                        <span style={{ fontSize: '28px' }}>🛍️</span>
+                        <span style={{ fontSize: '40px' }}>🛍️</span>
                     </div>
-                    <h3 className="empty-state-title">Welcome to CartConnect!</h3>
-                    <p className="empty-state-text">
-                        Follow other users to see their purchases in your feed.
+                    <h3 className="empty-state-title" style={{ marginBottom: '8px' }}>
+                        {activeCategory === 'All' ? 'Welcome to CartConnect!' : `No ${activeCategory} products yet`}
+                    </h3>
+                    <p className="empty-state-text" style={{ maxWidth: '280px' }}>
+                        {activeCategory === 'All'
+                            ? 'Follow other users to see their purchases in your feed.'
+                            : 'Check back later or browse other categories.'
+                        }
                     </p>
                 </div>
             ) : (
                 // Products
-                products.map(product => (
+                filteredProducts.map(product => (
                     <FeedCard
                         key={product.id}
                         product={product}
                         onLike={handleLike}
                         onSave={toggleSave}
                         onComment={() => handleProductClick(product)}
+                        onShare={() => handleShare(product)}
                         onClick={() => handleProductClick(product)}
+                        onUserClick={() => showToast('info', 'User profiles coming soon!')}
                         currentUserId={user?.uid}
                     />
                 ))

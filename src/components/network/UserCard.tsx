@@ -6,11 +6,16 @@ interface UserCardProps {
     isFollowing: boolean;
     onFollow: (userId: string) => void;
     onUnfollow: (userId: string) => void;
+    onClick?: () => void;
 }
 
-const UserCard = ({ user, isFollowing, onFollow, onUnfollow }: UserCardProps) => {
+const UserCard = ({ user, isFollowing, onFollow, onUnfollow, onClick }: UserCardProps) => {
     return (
-        <div className="feed-card" style={{ padding: 'var(--space-4)' }}>
+        <div
+            className="feed-card"
+            style={{ padding: 'var(--space-4)', cursor: onClick ? 'pointer' : 'default' }}
+            onClick={onClick}
+        >
             <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <img
@@ -38,42 +43,44 @@ const UserCard = ({ user, isFollowing, onFollow, onUnfollow }: UserCardProps) =>
                     </div>
                 </div>
 
-                {/* Action Button */}
-                {isFollowing ? (
-                    <button
-                        onClick={() => onUnfollow(user.uid)}
-                        className="feed-card-action"
-                        style={{
-                            width: 'auto',
-                            height: '36px',
-                            minHeight: '36px',
-                            padding: '0 16px',
-                            background: 'var(--bg-elevated)',
-                            color: 'var(--text-muted)',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            borderRadius: '10px'
-                        }}
-                    >
-                        Following
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => onFollow(user.uid)}
-                        className="feed-card-shop-btn"
-                        style={{
-                            width: 'auto',
-                            height: '36px',
-                            minHeight: '36px',
-                            padding: '0 20px',
-                            marginBottom: 0,
-                            fontSize: '13px',
-                            boxShadow: 'none'
-                        }}
-                    >
-                        Follow
-                    </button>
-                )}
+                {/* Action Button - Stop propagation to prevent card click */}
+                <div onClick={(e) => e.stopPropagation()}>
+                    {isFollowing ? (
+                        <button
+                            onClick={() => onUnfollow(user.uid)}
+                            className="feed-card-action"
+                            style={{
+                                width: 'auto',
+                                height: '36px',
+                                minHeight: '36px',
+                                padding: '0 16px',
+                                background: 'var(--bg-elevated)',
+                                color: 'var(--text-muted)',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                borderRadius: '10px'
+                            }}
+                        >
+                            Following
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => onFollow(user.uid)}
+                            className="feed-card-shop-btn"
+                            style={{
+                                width: 'auto',
+                                height: '36px',
+                                minHeight: '36px',
+                                padding: '0 20px',
+                                marginBottom: 0,
+                                fontSize: '13px',
+                                boxShadow: 'none'
+                            }}
+                        >
+                            Follow
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 {
     "name": "CartConnect",
     "short_name": "CartConnect",
-    "description": "Social Commerce PWA für geteilte Einkäufe",
+    "description": "Social Commerce PWA for shared purchases",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0F0F0F",
@@ -17,6 +17,12 @@
             "src": "/icons/icon-512.png",
             "sizes": "512x512",
             "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ]
 }
