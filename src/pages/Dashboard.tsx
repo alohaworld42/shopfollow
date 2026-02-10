@@ -1,34 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Plus, Grid3X3, Bookmark, BarChart2, DollarSign, MousePointer2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Grid3X3, Bookmark } from 'lucide-react';
 import { ProductGrid, EditProductModal, ImportProductForm } from '../components/profile';
 import { useAuth, useProducts, useToast } from '../hooks';
-import { getDashboardStats, type DashboardStats } from '../services/analyticsService';
 import type { Product, Visibility } from '../types';
 
 const Dashboard = () => {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
     const { products, loading, fetchUserProducts, updateProduct, deleteProduct, createProduct } = useProducts();
     const { showToast } = useToast();
 
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [showImportForm, setShowImportForm] = useState(false);
     const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
-    const [stats, setStats] = useState<DashboardStats>({
-        earnings: 0,
-        clicks: 0,
-        orders: 0,
-        reach: 0,
-        totalProducts: 0,
-        totalLikes: 0,
-        totalComments: 0,
-        followers: 0,
-        following: 0
-    });
+
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/welcome', { replace: true });
+        }
+    }, [authLoading, user, navigate]);
 
     useEffect(() => {
         if (user) {
             fetchUserProducts(user.uid);
-            getDashboardStats(user.uid).then(setStats);
         }
     }, [user, fetchUserProducts]);
 
@@ -68,7 +63,7 @@ const Dashboard = () => {
         }
     };
 
-    if (!user) {
+    if (authLoading || !user) {
         return (
             <div className="loading-screen" style={{ minHeight: '50vh' }}>
                 <div className="loading-spinner" />
@@ -91,35 +86,17 @@ const Dashboard = () => {
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                                Business Dashboard
+                                My Products
                             </h2>
                             <span style={{
                                 fontSize: '13px',
-                                color: 'var(--color-success)',
-                                background: 'rgba(16, 185, 129, 0.1)',
+                                color: 'var(--text-secondary)',
+                                background: 'var(--bg-secondary)',
                                 padding: '4px 8px',
                                 borderRadius: '8px'
                             }}>
-                                +12% this week
+                                {products.length} items
                             </span>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
-                                <div style={{ color: 'var(--color-primary-light)', marginBottom: '8px' }}><DollarSign size={20} /></div>
-                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>${stats.earnings.toFixed(0)}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Earnings</div>
-                            </div>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
-                                <div style={{ color: 'var(--color-accent)', marginBottom: '8px' }}><MousePointer2 size={20} /></div>
-                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.clicks}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Link Clicks</div>
-                            </div>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
-                                <div style={{ color: 'var(--color-primary)', marginBottom: '8px' }}><BarChart2 size={20} /></div>
-                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.reach}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Mthly Reach</div>
-                            </div>
                         </div>
 
                         {/* Action Buttons */}
@@ -129,12 +106,6 @@ const Dashboard = () => {
                                 onClick={() => setShowImportForm(true)}
                             >
                                 <Plus size={18} /> Create Post
-                            </button>
-                            <button
-                                className="profile-action-btn secondary"
-                                onClick={() => showToast('info', 'Link management coming soon!')}
-                            >
-                                Manage Links
                             </button>
                         </div>
                     </div>

@@ -1,13 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Users, Bell, User, Plus, Settings, ShoppingBag } from 'lucide-react';
+import { Home, Search, Users, User, Plus, Settings, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/search', icon: Search, label: 'Explore' },
     { path: '/network', icon: Users, label: 'Network' },
-    { path: '/notifications', icon: Bell, label: 'Notifications' },
-    { path: '/purchases', icon: ShoppingBag, label: 'Purchases' },
     { path: '/profile', icon: User, label: 'Profile' },
 ];
 

@@ -20,13 +20,11 @@ export const supabase: SupabaseClient = createClient(
             flowType: 'pkce'
         },
         global: {
-            headers: { 'x-application-name': 'shopfollow' },
             fetch: (url, options = {}) => {
-                const newOptions = { ...options } as RequestInit;
-                if (newOptions.signal) {
-                    delete newOptions.signal;
-                }
-                return fetch(url, newOptions);
+                // Replace any AbortSignal with a never-aborting one
+                // to prevent supabase-js internal AbortController issues
+                const controller = new AbortController();
+                return fetch(url, { ...options, signal: controller.signal });
             }
         }
     }

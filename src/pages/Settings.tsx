@@ -1,49 +1,15 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, UserX, Shield, Bell, Lock, HelpCircle, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Lock, HelpCircle, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card } from '../components/common';
+import { Button } from '../components/common';
 import { useAuth, useToast } from '../hooks';
-import { getBlockedUsers, unblockUser, type BlockedUser } from '../services/moderationService';
 import { updateUser } from '../services/userService';
 
 const Settings = () => {
     const { user, signOut } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
-    const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
-    const [loadingBlocks, setLoadingBlocks] = useState(true);
     const [activeSection, setActiveSection] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (user) {
-            loadBlockedUsers();
-        }
-    }, [user]);
-
-    const loadBlockedUsers = async () => {
-        if (!user) return;
-        try {
-            const users = await getBlockedUsers(user.uid);
-            setBlockedUsers(users);
-        } catch (error) {
-            console.error('Failed to load blocked users:', error);
-        } finally {
-            setLoadingBlocks(false);
-        }
-    };
-
-    const handleUnblock = async (blockedId: string) => {
-        if (!user) return;
-        try {
-            await unblockUser(user.uid, blockedId);
-            setBlockedUsers(prev => prev.filter(b => b.blocked_id !== blockedId));
-            showToast('success', 'User unblocked');
-        } catch (error) {
-            showToast('error', 'Failed to unblock user');
-        }
-    };
-
-
 
     const updatePrivacy = async (isPrivate: boolean) => {
         if (!user) return;
@@ -62,10 +28,7 @@ const Settings = () => {
     };
 
     const settingsSections = [
-        { id: 'blocked', label: 'Blocked Users', icon: UserX, count: blockedUsers.length },
         { id: 'privacy', label: 'Privacy', icon: Lock },
-        { id: 'notifications', label: 'Notifications', icon: Bell },
-        { id: 'security', label: 'Security', icon: Shield },
         { id: 'help', label: 'Help & Support', icon: HelpCircle },
     ];
 
@@ -139,79 +102,7 @@ const Settings = () => {
                                         {section.label}
                                     </p>
                                 </div>
-                                {section.count !== undefined && section.count > 0 && (
-                                    <span style={{
-                                        background: 'var(--color-primary)',
-                                        color: 'white',
-                                        fontSize: '12px',
-                                        fontWeight: 600,
-                                        padding: '2px 8px',
-                                        borderRadius: '10px'
-                                    }}>
-                                        {section.count}
-                                    </span>
-                                )}
                             </button>
-
-                            {/* Blocked Users Section */}
-                            {isActive && section.id === 'blocked' && (
-                                <div style={{
-                                    marginTop: 'var(--space-3)',
-                                    padding: 'var(--space-4)',
-                                    background: 'var(--bg-card)',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border-primary)'
-                                }}>
-                                    {loadingBlocks ? (
-                                        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                                            Loading...
-                                        </p>
-                                    ) : blockedUsers.length === 0 ? (
-                                        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                                            You haven't blocked anyone
-                                        </p>
-                                    ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                                            {blockedUsers.map(blocked => (
-                                                <div
-                                                    key={blocked.blocked_id}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 'var(--space-3)',
-                                                        padding: 'var(--space-3)',
-                                                        background: 'var(--bg-secondary)',
-                                                        borderRadius: 'var(--radius-sm)'
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={blocked.blocked_profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${blocked.blocked_id}`}
-                                                        alt=""
-                                                        style={{
-                                                            width: '40px',
-                                                            height: '40px',
-                                                            borderRadius: '50%',
-                                                            objectFit: 'cover'
-                                                        }}
-                                                    />
-                                                    <div style={{ flex: 1 }}>
-                                                        <p style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
-                                                            {blocked.blocked_profile?.display_name || 'Unknown User'}
-                                                        </p>
-                                                    </div>
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleUnblock(blocked.blocked_id)}
-                                                    >
-                                                        Unblock
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
 
                             {/* Privacy Section */}
                             {isActive && section.id === 'privacy' && (
@@ -256,7 +147,7 @@ const Settings = () => {
                             )}
 
                             {/* Placeholder for other sections */}
-                            {isActive && section.id !== 'blocked' && section.id !== 'privacy' && (
+                            {isActive && section.id !== 'privacy' && (
                                 <div style={{
                                     marginTop: 'var(--space-3)',
                                     padding: 'var(--space-6)',

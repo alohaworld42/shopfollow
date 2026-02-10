@@ -103,7 +103,7 @@ const Search = () => {
 
     const finalDisplayProducts = (searchTerm || selectedCategory) ? searchResults : trendingProducts;
 
-    const categories = ['Fashion', 'Beauty', 'Home', 'Fitness', 'Family', 'Sale'];
+    const categories = ['Fashion', 'Tech', 'Home', 'Beauty'];
 
     const handleSave = async (productId: string) => {
         if (!user) return;

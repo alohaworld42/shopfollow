@@ -4,7 +4,7 @@ import { SkeletonCard } from '../components/common';
 import { useAuth, useProducts, useToast } from '../hooks';
 import type { Product } from '../types';
 
-const CATEGORIES = ['All', 'Fashion', 'Tech', 'Home', 'Beauty', 'Sports'];
+const CATEGORIES = ['All', 'Fashion', 'Tech', 'Home', 'Beauty'];
 
 const Feed = () => {
     const { user } = useAuth();

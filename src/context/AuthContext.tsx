@@ -13,7 +13,6 @@ import {
     getFollowing,
     Profile
 } from '../services/authService';
-import { matchOrdersToUser } from '../services/orderMatchingService';
 import type { User, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -45,15 +44,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         let isMounted = true;
 
-        // If Supabase is not configured, we're in demo-capable mode
-        // but we DON'T auto-login - user must explicitly choose demo
         if (!isSupabaseConfigured) {
             console.log('🎭 Demo Mode Available - Supabase not configured');
             setLoading(false);
             return;
         }
 
-        // Check for existing session
+        // Safety: force loading=false after 5s no matter what
+        const timeout = setTimeout(() => {
+            if (isMounted) setLoading(false);
+        }, 5000);
+
         const initAuth = async () => {
             try {
                 const profile = await getCurrentUser();
@@ -67,21 +68,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     }
                 }
             } catch (err) {
-                // Ignore abort errors on unmount
-                if (err instanceof Error && err.name === 'AbortError') {
-                    return;
-                }
+                if (err instanceof Error && err.name === 'AbortError') return;
                 console.error('Auth init error:', err);
             } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
+                if (isMounted) setLoading(false);
             }
         };
 
         initAuth();
 
-        // Subscribe to auth changes
         const { unsubscribe } = onAuthStateChange(async (profile) => {
             if (!isMounted) return;
 
@@ -93,24 +88,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                         setUser(profileToUser(profile, followers, following));
                     }
                 } else {
-                    if (isMounted) {
-                        setUser(null);
-                    }
+                    if (isMounted) setUser(null);
                 }
             } catch (err) {
-                if (err instanceof Error && err.name === 'AbortError') {
-                    return;
-                }
+                if (err instanceof Error && err.name === 'AbortError') return;
                 console.error('Auth state change error:', err);
             } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
+                if (isMounted) setLoading(false);
             }
         });
 
         return () => {
             isMounted = false;
+            clearTimeout(timeout);
             unsubscribe();
         };
     }, []);
@@ -148,12 +138,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const followers = await getFollowers(profile.id);
             const following = await getFollowing(profile.id);
             setUser(profileToUser(profile, followers, following));
-
-            // Match any pending orders to this user by email
-            const matchedCount = await matchOrdersToUser(profile.id, profile.email);
-            if (matchedCount > 0) {
-                console.log(`🎉 Matched ${matchedCount} orders to user ${profile.email}`);
-            }
         } catch (error) {
             setLoading(false);
             throw error; // Re-throw so Login page can display error
@@ -192,12 +176,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         try {
             const profile = await authSignUp(email, password, displayName);
             setUser(profileToUser(profile));
-
-            // Match any pending orders to this new user by email
-            const matchedCount = await matchOrdersToUser(profile.id, profile.email);
-            if (matchedCount > 0) {
-                console.log(`🎉 Matched ${matchedCount} orders to new user ${profile.email}`);
-            }
         } catch (error) {
             setLoading(false);
             throw error; // Re-throw so Signup page can display error

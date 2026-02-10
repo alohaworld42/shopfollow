@@ -1,10 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Bell, Search } from 'lucide-react';
-import { useInbox } from '../../hooks';
+import { ShoppingBag, Search } from 'lucide-react';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { unreadCount } = useInbox();
 
     return (
         <header className="app-header">
@@ -56,46 +54,6 @@ const Header = () => {
                         }}
                     >
                         <Search size={20} strokeWidth={1.5} />
-                    </button>
-
-                    <button
-                        onClick={() => navigate('/notifications')}
-                        style={{
-                            position: 'relative',
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: 'var(--text-secondary)',
-                            background: 'none',
-                            border: 'none',
-                            transition: 'color 0.15s',
-                        }}
-                    >
-                        <Bell size={20} strokeWidth={1.5} />
-                        {unreadCount > 0 && (
-                            <span style={{
-                                position: 'absolute',
-                                top: '6px',
-                                right: '6px',
-                                width: '16px',
-                                height: '16px',
-                                background: 'var(--color-error)',
-                                borderRadius: '50%',
-                                fontSize: '10px',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'white',
-                                border: '2px solid var(--bg-base)'
-                            }}>
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
                     </button>
                 </div>
             </div>

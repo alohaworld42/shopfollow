@@ -317,7 +317,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                             }}
                         >
                             <option value="">Select category...</option>
-                            {['Fashion', 'Beauty', 'Home', 'Fitness', 'Family', 'Sale'].map(cat => (
+                            {['Fashion', 'Tech', 'Home', 'Beauty'].map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                             ))}
                         </select>

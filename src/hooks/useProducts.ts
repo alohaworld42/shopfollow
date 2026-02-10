@@ -13,7 +13,7 @@ const DEMO_USER_PRODUCTS: Product[] = [];
 export const useProducts = () => {
     const { user } = useAuth();
     const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const isDemoMode = !isSupabaseConfigured;
