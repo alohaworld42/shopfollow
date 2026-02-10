@@ -56,7 +56,7 @@ const Inbox = () => {
             </div>
 
             {/* Info Card */}
-            <div className="inbox-info-card glass-card" style={{ padding: '16px' }}>
+            <div className="inbox-info-card feed-card" style={{ padding: '16px' }}>
                 <div className="inbox-info-icon">
                     <Sparkles size={20} />
                 </div>
@@ -73,7 +73,7 @@ const Inbox = () => {
                         <div className="loading-spinner" />
                     </div>
                 ) : orders.length === 0 ? (
-                    <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
+                    <div className="empty-state feed-card" style={{ margin: '16px', padding: '40px 24px' }}>
                         <div className="inbox-empty-icon">
                             <InboxIcon size={40} style={{ color: 'var(--color-primary)' }} />
                         </div>

@@ -35,8 +35,8 @@ const Card = ({
             style={{
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden',
-                background: glass ? 'var(--bg-glass)' : 'var(--bg-card)',
-                border: `1px solid ${glass ? 'var(--border-glass)' : 'var(--border-subtle)'}`,
+                background: glass ? 'var(--bg-secondary)' : 'var(--bg-card)',
+                border: '1px solid var(--border-primary)',
                 backdropFilter: glass ? 'blur(16px)' : undefined,
                 padding: paddingStyles[padding],
                 cursor: hover || onClick ? 'pointer' : undefined,

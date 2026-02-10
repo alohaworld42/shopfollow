@@ -70,7 +70,7 @@ const Modal = ({
                 ...sizeStyles[size],
                 background: 'var(--bg-card)',
                 borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-subtle)',
+                border: '1px solid var(--border-primary)',
                 boxShadow: 'var(--shadow-xl)',
                 overflow: 'hidden',
                 animation: 'fadeIn 0.2s ease-out'
@@ -82,7 +82,7 @@ const Modal = ({
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: 'var(--space-5) var(--space-6)',
-                        borderBottom: '1px solid var(--border-subtle)'
+                        borderBottom: '1px solid var(--border-primary)'
                     }}>
                         <h2 style={{
                             fontSize: '18px',
@@ -122,7 +122,7 @@ const Modal = ({
                                 right: 'var(--space-4)',
                                 padding: 'var(--space-2)',
                                 borderRadius: '50%',
-                                background: 'var(--bg-glass)',
+                                background: 'var(--bg-secondary)',
                                 border: 'none',
                                 color: 'var(--text-muted)',
                                 cursor: 'pointer',

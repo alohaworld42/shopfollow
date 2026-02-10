@@ -67,7 +67,7 @@ const Feed = () => {
                             border: 'none',
                             background: activeCategory === cat
                                 ? 'var(--color-primary)'
-                                : 'var(--bg-glass)',
+                                : 'var(--bg-secondary)',
                             color: activeCategory === cat
                                 ? 'white'
                                 : 'var(--text-secondary)',
@@ -91,12 +91,12 @@ const Feed = () => {
                 ))
             ) : filteredProducts.length === 0 ? (
                 // Empty State
-                <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
+                <div className="empty-state" style={{ margin: '16px', padding: '40px 24px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
                     <div className="empty-state-icon">
                         <span style={{ fontSize: '40px' }}>🛍️</span>
                     </div>
                     <h3 className="empty-state-title" style={{ marginBottom: '8px' }}>
-                        {activeCategory === 'All' ? 'Welcome to CartConnect!' : `No ${activeCategory} products yet`}
+                        {activeCategory === 'All' ? 'Welcome to ShopFollow!' : `No ${activeCategory} products yet`}
                     </h3>
                     <p className="empty-state-text" style={{ maxWidth: '280px' }}>
                         {activeCategory === 'All'

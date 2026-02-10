@@ -47,3 +47,6 @@ supabase/.temp
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Agent skills
+.agents/

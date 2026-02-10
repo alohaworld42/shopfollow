@@ -26,10 +26,10 @@ const GlassCard = ({ children, style, onClick }: any) => (
     <div
         onClick={onClick}
         style={{
-            background: 'var(--bg-glass)',
+            background: 'var(--bg-secondary)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid var(--border-glass)',
+            border: '1px solid var(--border-primary)',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
             transition: 'transform 0.2s, box-shadow 0.2s',
@@ -158,7 +158,7 @@ const CreateGroupModal = ({ isOpen, onClose, onCreate }: { isOpen: boolean, onCl
                                 width: '100%',
                                 padding: '16px 16px 16px 48px',
                                 borderRadius: '12px',
-                                border: '1px solid var(--border-subtle)',
+                                border: '1px solid var(--border-primary)',
                                 background: 'var(--bg-base)', // Darker input bg
                                 color: 'var(--text-primary)',
                                 outline: 'none',
@@ -260,7 +260,7 @@ const Network = () => {
                 left: 0,
                 right: 0,
                 height: '300px',
-                background: 'radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15), transparent 70%)',
+                background: 'radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.08), transparent 70%)',
                 pointerEvents: 'none',
                 zIndex: 0
             }} />
@@ -448,7 +448,7 @@ const Network = () => {
                                 ))}
                             </div>
                         ) : (
-                            <div className="empty-state" style={{ background: 'var(--bg-card)', border: '1px border var(--border-subtle)', borderRadius: '20px' }}>
+                            <div className="empty-state" style={{ background: 'var(--bg-card)', border: '1px border var(--border-primary)', borderRadius: '20px' }}>
                                 <Users size={48} style={{ color: 'var(--color-primary-light)' }} />
                                 <p>Create circles for your close friends.</p>
                             </div>

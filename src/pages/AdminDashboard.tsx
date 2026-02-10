@@ -374,7 +374,7 @@ const ReportCard = ({
                             fontSize: '12px',
                             padding: '2px 8px',
                             borderRadius: '4px',
-                            background: 'var(--bg-elevated)',
+                            background: 'var(--bg-secondary)',
                             color: 'var(--text-secondary)'
                         }}>
                             {getTargetType()}
@@ -403,7 +403,7 @@ const ReportCard = ({
                 <div style={{
                     marginTop: 'var(--space-4)',
                     paddingTop: 'var(--space-4)',
-                    borderTop: '1px solid var(--border-subtle)'
+                    borderTop: '1px solid var(--border-primary)'
                 }}>
                     {report.description && (
                         <p style={{
@@ -411,7 +411,7 @@ const ReportCard = ({
                             color: 'var(--text-secondary)',
                             marginBottom: 'var(--space-4)',
                             padding: 'var(--space-3)',
-                            background: 'var(--bg-elevated)',
+                            background: 'var(--bg-secondary)',
                             borderRadius: 'var(--radius-sm)'
                         }}>
                             "{report.description}"
@@ -426,7 +426,7 @@ const ReportCard = ({
                             gap: 'var(--space-3)',
                             marginBottom: 'var(--space-4)',
                             padding: 'var(--space-3)',
-                            background: 'var(--bg-elevated)',
+                            background: 'var(--bg-secondary)',
                             borderRadius: 'var(--radius-sm)'
                         }}>
                             <img
@@ -448,7 +448,7 @@ const ReportCard = ({
                             gap: 'var(--space-3)',
                             marginBottom: 'var(--space-4)',
                             padding: 'var(--space-3)',
-                            background: 'var(--bg-elevated)',
+                            background: 'var(--bg-secondary)',
                             borderRadius: 'var(--radius-sm)'
                         }}>
                             <img

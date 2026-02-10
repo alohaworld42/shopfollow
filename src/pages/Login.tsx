@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShoppingBag, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { getAuthErrorMessage } from '../services/authService';
 
 export const Login = () => {
     const navigate = useNavigate();
@@ -26,41 +28,25 @@ export const Login = () => {
             setTimeout(() => {
                 navigate('/');
             }, 1000);
-        } catch (err: unknown) {
-            console.error('Login error:', err);
+        } catch (err) {
             setLoading(false);
+            const msg = getAuthErrorMessage(err);
+            setError(msg);
+        }
+    };
 
-            // Handle AbortError - this is a known Supabase issue, retry the request
-            if (err instanceof Error && err.name === 'AbortError') {
-                // AbortError can happen due to Supabase client issues
-                // Show a user-friendly message and suggest retry
-                setError('Connection was interrupted. Please try again.');
-                return;
-            }
-
-            // Extract error message from various error types
-            let msg = 'An unexpected error occurred. Please try again.';
-            if (err && typeof err === 'object') {
-                // AuthApiError or similar objects have a message property
-                if ('message' in err && typeof err.message === 'string') {
-                    msg = err.message;
-                } else if ('error_description' in err && typeof err.error_description === 'string') {
-                    msg = err.error_description;
-                }
-            }
-
-            // Translate common errors to user-friendly messages
-            if (msg.includes('Invalid login credentials')) {
-                setError('Incorrect email or password. Please try again.');
-            } else if (msg.includes('Email not confirmed')) {
-                setError('Please check your inbox and verify your email address before logging in.');
-            } else if (msg.includes('Invalid email')) {
-                setError('Please enter a valid email address.');
-            } else if (msg.includes('aborted') || msg.includes('AbortError')) {
-                setError('Connection was interrupted. Please try again.');
-            } else {
-                setError(msg);
-            }
+    const handleSocialLogin = async (provider: 'google' | 'apple') => {
+        setError('');
+        setSuccess('');
+        setLoading(true);
+        try {
+            if (provider === 'google') await signInWithGoogle();
+            else await signInWithApple();
+            // Note: successful OAuth redirects, so we might not reach here, 
+            // but if we do (e.g. popups in future), we handled it.
+        } catch (err) {
+            setError(getAuthErrorMessage(err));
+            setLoading(false);
         }
     };
 
@@ -84,11 +70,19 @@ export const Login = () => {
             </div>
 
             {/* Form */}
-            <form className="auth-form glass-card" onSubmit={handleSubmit} style={{ padding: '28px', borderRadius: '20px' }}>
+            <form className="auth-form" onSubmit={handleSubmit}>
                 {error && (
-                    <div className="auth-error" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ flexShrink: 0 }}>⚠️</div>
-                        <span>{error}</span>
+                    <div className="auth-error" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ flexShrink: 0 }}>⚠️</div>
+                            <span>{error}</span>
+                        </div>
+                        {/* Diagnostic info for debugging */}
+                        <div style={{ fontSize: '11px', opacity: 0.7, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '4px', marginTop: '4px' }}>
+                            Diagnostic: Please check console for full details.
+                            <br />
+                            Configured: {isSupabaseConfigured ? 'Yes' : 'No'}
+                        </div>
                     </div>
                 )}
 
@@ -154,7 +148,7 @@ export const Login = () => {
                         to="/forgot-password"
                         style={{
                             fontSize: '13px',
-                            color: 'var(--color-primary-light)',
+                            color: 'var(--color-primary)',
                             textDecoration: 'none'
                         }}
                         onClick={(e) => {
@@ -189,17 +183,17 @@ export const Login = () => {
                     color: 'var(--text-muted)',
                     fontSize: '13px'
                 }}>
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
+                    <div style={{ flex: 1, height: '1px', background: 'var(--border-primary)' }} />
                     <span>or continue with</span>
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
+                    <div style={{ flex: 1, height: '1px', background: 'var(--border-primary)' }} />
                 </div>
 
                 {/* Social Login Buttons */}
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
                         type="button"
-                        onClick={() => signInWithGoogle()}
-                        className="glass-button"
+                        onClick={() => handleSocialLogin('google')}
+                        disabled={loading}
                         style={{
                             flex: 1,
                             display: 'flex',
@@ -208,13 +202,14 @@ export const Login = () => {
                             gap: '10px',
                             padding: '14px',
                             borderRadius: '12px',
-                            border: '1px solid var(--border-subtle)',
-                            background: 'var(--bg-glass)',
+                            border: '1px solid var(--border-primary)',
+                            background: 'var(--bg-secondary)',
                             color: 'var(--text-primary)',
                             fontSize: '14px',
                             fontWeight: 500,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            opacity: loading ? 0.7 : 1,
+                            transition: 'all 0.15s'
                         }}
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24">
@@ -227,8 +222,8 @@ export const Login = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => signInWithApple()}
-                        className="glass-button"
+                        onClick={() => handleSocialLogin('apple')}
+                        disabled={loading}
                         style={{
                             flex: 1,
                             display: 'flex',
@@ -237,13 +232,14 @@ export const Login = () => {
                             gap: '10px',
                             padding: '14px',
                             borderRadius: '12px',
-                            border: '1px solid var(--border-subtle)',
-                            background: 'var(--bg-glass)',
+                            border: '1px solid var(--border-primary)',
+                            background: 'var(--bg-secondary)',
                             color: 'var(--text-primary)',
                             fontSize: '14px',
                             fontWeight: 500,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            opacity: loading ? 0.7 : 1,
+                            transition: 'all 0.15s'
                         }}
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -253,6 +249,7 @@ export const Login = () => {
                     </button>
                 </div>
             </form>
+
 
             {/* Footer */}
             <div className="auth-footer">

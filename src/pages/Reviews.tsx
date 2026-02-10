@@ -110,7 +110,7 @@ const Reviews = () => {
             {!loading && reviews.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 16px' }}>
                     {reviews.map(review => (
-                        <div key={review.id} className="glass-card" style={{ padding: '20px' }}>
+                        <div key={review.id} className="feed-card" style={{ padding: '20px' }}>
                             {/* Author & Time */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                 <img
@@ -133,7 +133,7 @@ const Reviews = () => {
                                 display: 'flex',
                                 gap: '12px',
                                 padding: '12px',
-                                background: 'var(--bg-glass)',
+                                background: 'var(--bg-secondary)',
                                 borderRadius: '12px',
                                 marginBottom: '16px'
                             }}>
@@ -207,7 +207,7 @@ const Reviews = () => {
 
             {/* Empty State */}
             {!loading && reviews.length === 0 && (
-                <div className="empty-state glass-card" style={{ margin: '24px 16px', padding: '40px 24px' }}>
+                <div className="empty-state feed-card" style={{ margin: '24px 16px', padding: '40px 24px' }}>
                     <div className="empty-state-icon" style={{ marginBottom: '16px' }}>
                         <MessageCircle size={40} style={{ color: 'var(--color-primary)' }} />
                     </div>

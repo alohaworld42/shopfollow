@@ -51,7 +51,7 @@ const Purchases = () => {
                         padding: '8px',
                         borderRadius: '50%',
                         background: 'var(--bg-card)',
-                        border: '1px solid var(--border-subtle)',
+                        border: '1px solid var(--border-primary)',
                         color: 'var(--text-muted)',
                         cursor: 'pointer'
                     }}
@@ -61,7 +61,7 @@ const Purchases = () => {
             </div>
 
             {/* Info Card */}
-            <div className="inbox-info-card glass-card" style={{ padding: '16px' }}>
+            <div className="inbox-info-card feed-card" style={{ padding: '16px' }}>
                 <div className="inbox-info-icon">
                     <AlertCircle size={22} />
                 </div>
@@ -83,7 +83,7 @@ const Purchases = () => {
                         <div className="loading-spinner" />
                     </div>
                 ) : orders.length === 0 ? (
-                    <div className="empty-state glass-card" style={{ margin: '16px', padding: '40px 24px' }}>
+                    <div className="empty-state feed-card" style={{ margin: '16px', padding: '40px 24px' }}>
                         <div className="empty-state-icon">
                             <ShoppingBag size={40} style={{ color: 'var(--color-primary)' }} />
                         </div>

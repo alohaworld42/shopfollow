@@ -64,7 +64,7 @@ const FeedCard = ({ product, onLike, onSave, onComment, onShare, onClick, onUser
     };
 
     return (
-        <article className="feed-card glass-card">
+        <article className="feed-card">
             {/* Header - Creator info with generous spacing */}
             <div
                 className="feed-card-header"

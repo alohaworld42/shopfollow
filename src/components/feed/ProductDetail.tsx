@@ -59,7 +59,7 @@ const ProductDetail = ({
                         position: 'absolute',
                         top: 'var(--space-4)',
                         right: 'var(--space-4)',
-                        background: 'var(--bg-glass)',
+                        background: 'var(--bg-secondary)',
                         backdropFilter: 'blur(10px)',
                         padding: 'var(--space-2) var(--space-3)',
                         borderRadius: 'var(--radius-sm)',
@@ -78,7 +78,7 @@ const ProductDetail = ({
                         alignItems: 'center',
                         gap: 'var(--space-4)',
                         padding: 'var(--space-5)',
-                        borderBottom: '1px solid var(--border-subtle)'
+                        borderBottom: '1px solid var(--border-primary)'
                     }}>
                         <img
                             src={product.userAvatar}
@@ -176,7 +176,7 @@ const ProductDetail = ({
                     {/* Actions */}
                     <div style={{
                         padding: 'var(--space-5)',
-                        borderTop: '1px solid var(--border-subtle)'
+                        borderTop: '1px solid var(--border-primary)'
                     }}>
                         <div style={{
                             display: 'flex',
@@ -238,8 +238,8 @@ const ProductDetail = ({
                                 placeholder="Add a comment..."
                                 style={{
                                     flex: 1,
-                                    background: 'var(--bg-elevated)',
-                                    border: '1px solid var(--border-subtle)',
+                                    background: 'var(--bg-secondary)',
+                                    border: '1px solid var(--border-primary)',
                                     borderRadius: 'var(--radius-md)',
                                     padding: 'var(--space-3) var(--space-4)',
                                     fontSize: '14px',

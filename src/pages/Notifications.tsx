@@ -113,7 +113,7 @@ const Notifications = () => {
                             gap: '6px',
                             padding: '8px 12px',
                             background: 'var(--bg-card)',
-                            border: '1px solid var(--border-subtle)',
+                            border: '1px solid var(--border-primary)',
                             borderRadius: '8px',
                             color: 'var(--text-secondary)',
                             fontSize: '13px',
@@ -136,7 +136,7 @@ const Notifications = () => {
                             <div key={req.uid} style={{
                                 padding: '12px',
                                 background: 'var(--bg-card)',
-                                border: '1px solid var(--border-subtle)',
+                                border: '1px solid var(--border-primary)',
                                 borderRadius: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -151,7 +151,7 @@ const Notifications = () => {
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button onClick={() => handleAccept(req.uid)} style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--color-primary)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>Accept</button>
-                                    <button onClick={() => handleReject(req.uid)} style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', cursor: 'pointer', fontSize: '13px' }}>Delete</button>
+                                    <button onClick={() => handleReject(req.uid)} style={{ padding: '6px 12px', borderRadius: '6px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-primary)', cursor: 'pointer', fontSize: '13px' }}>Delete</button>
                                 </div>
                             </div>
                         ))}
@@ -185,8 +185,8 @@ const Notifications = () => {
                                 alignItems: 'flex-start',
                                 gap: '12px',
                                 padding: '16px',
-                                background: notification.readAt ? 'var(--bg-card)' : 'var(--bg-elevated)',
-                                border: `1px solid ${notification.readAt ? 'var(--border-subtle)' : 'var(--color-primary-light)'}`,
+                                background: notification.readAt ? 'var(--bg-card)' : 'var(--bg-secondary)',
+                                border: `1px solid ${notification.readAt ? 'var(--border-primary)' : 'var(--color-primary-light)'}`,
                                 borderRadius: 'var(--radius-lg)',
                                 cursor: notification.readAt ? 'default' : 'pointer',
                                 transition: 'all 0.2s ease'
@@ -197,7 +197,7 @@ const Notifications = () => {
                                 width: '40px',
                                 height: '40px',
                                 borderRadius: '50%',
-                                background: 'var(--bg-glass)',
+                                background: 'var(--bg-secondary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',

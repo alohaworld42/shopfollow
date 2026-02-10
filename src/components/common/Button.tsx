@@ -21,13 +21,13 @@ const Button = ({
         primary: {
             background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)',
             color: 'white',
-            boxShadow: '0 4px 16px rgba(139, 92, 246, 0.3)',
+            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)',
             border: 'none'
         },
         secondary: {
-            background: 'var(--bg-elevated)',
+            background: 'var(--bg-secondary)',
             color: 'var(--text-primary)',
-            border: '1px solid var(--border-subtle)'
+            border: '1px solid var(--border-primary)'
         },
         ghost: {
             background: 'transparent',

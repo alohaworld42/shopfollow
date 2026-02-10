@@ -157,7 +157,7 @@ const Search = () => {
                     position: 'relative',
                     borderRadius: '16px',
                     background: 'var(--bg-card)',
-                    border: '1px solid var(--border-subtle)',
+                    border: '1px solid var(--border-primary)',
                     boxShadow: 'var(--shadow-sm)'
                 }}>
                     <SearchIcon
@@ -196,9 +196,9 @@ const Search = () => {
                     style={{
                         flex: 1,
                         padding: '10px',
-                        background: activeTab === 'products' ? 'var(--bg-elevated)' : 'transparent',
+                        background: activeTab === 'products' ? 'var(--bg-secondary)' : 'transparent',
                         borderRadius: '12px',
-                        border: activeTab === 'products' ? '1px solid var(--border-subtle)' : 'none',
+                        border: activeTab === 'products' ? '1px solid var(--border-primary)' : 'none',
                         color: activeTab === 'products' ? 'var(--text-primary)' : 'var(--text-muted)',
                         fontSize: '14px',
                         fontWeight: 600,
@@ -216,9 +216,9 @@ const Search = () => {
                     style={{
                         flex: 1,
                         padding: '10px',
-                        background: activeTab === 'people' ? 'var(--bg-elevated)' : 'transparent',
+                        background: activeTab === 'people' ? 'var(--bg-secondary)' : 'transparent',
                         borderRadius: '12px',
-                        border: activeTab === 'people' ? '1px solid var(--border-subtle)' : 'none',
+                        border: activeTab === 'people' ? '1px solid var(--border-primary)' : 'none',
                         color: activeTab === 'people' ? 'var(--text-primary)' : 'var(--text-muted)',
                         fontSize: '14px',
                         fontWeight: 600,
@@ -250,7 +250,7 @@ const Search = () => {
                                 padding: '8px 20px',
                                 borderRadius: '24px',
                                 background: selectedCategory === cat ? 'var(--color-primary)' : 'var(--bg-card)',
-                                border: selectedCategory === cat ? 'none' : '1px solid var(--border-subtle)',
+                                border: selectedCategory === cat ? 'none' : '1px solid var(--border-primary)',
                                 color: selectedCategory === cat ? 'white' : 'var(--text-secondary)',
                                 fontSize: '14px',
                                 fontWeight: 600,

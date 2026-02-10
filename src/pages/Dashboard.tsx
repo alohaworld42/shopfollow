@@ -85,7 +85,7 @@ const Dashboard = () => {
             ) : (
                 <>
                     {/* Creator Stats Card */}
-                    <div className="glass-card" style={{
+                    <div className="feed-card" style={{
                         padding: 'var(--space-6)',
                         marginBottom: 'var(--space-2)'
                     }}>
@@ -105,18 +105,18 @@ const Dashboard = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
                                 <div style={{ color: 'var(--color-primary-light)', marginBottom: '8px' }}><DollarSign size={20} /></div>
                                 <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>${stats.earnings.toFixed(0)}</div>
                                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Earnings</div>
                             </div>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
                                 <div style={{ color: 'var(--color-accent)', marginBottom: '8px' }}><MousePointer2 size={20} /></div>
                                 <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.clicks}</div>
                                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Link Clicks</div>
                             </div>
-                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-glass)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
-                                <div style={{ color: 'var(--color-secondary)', marginBottom: '8px' }}><BarChart2 size={20} /></div>
+                            <div style={{ flex: 1, minWidth: '100px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '14px', border: '1px solid var(--border-primary)' }}>
+                                <div style={{ color: 'var(--color-primary)', marginBottom: '8px' }}><BarChart2 size={20} /></div>
                                 <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.reach}</div>
                                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Mthly Reach</div>
                             </div>
@@ -166,7 +166,7 @@ const Dashboard = () => {
 
                     {/* Product Grid or Empty State */}
                     {products.length === 0 ? (
-                        <div className="empty-state glass-card" style={{ margin: '24px 16px', padding: '40px 24px' }}>
+                        <div className="empty-state feed-card" style={{ margin: '24px 16px', padding: '40px 24px' }}>
                             <div className="empty-state-icon" style={{ marginBottom: '16px' }}>
                                 <Plus size={40} style={{ color: 'var(--color-primary)' }} />
                             </div>

@@ -77,7 +77,7 @@ const Settings = () => {
                 alignItems: 'center',
                 gap: 'var(--space-4)',
                 padding: 'var(--space-4) var(--space-5)',
-                borderBottom: '1px solid var(--border-subtle)'
+                borderBottom: '1px solid var(--border-primary)'
             }}>
                 <Link
                     to="/profile"
@@ -88,7 +88,7 @@ const Settings = () => {
                         width: '40px',
                         height: '40px',
                         borderRadius: '50%',
-                        background: 'var(--bg-elevated)',
+                        background: 'var(--bg-secondary)',
                         color: 'var(--text-primary)',
                         textDecoration: 'none'
                     }}
@@ -117,8 +117,8 @@ const Settings = () => {
                                     gap: 'var(--space-4)',
                                     padding: 'var(--space-4)',
                                     borderRadius: 'var(--radius-md)',
-                                    background: isActive ? 'var(--bg-elevated)' : 'transparent',
-                                    border: '1px solid var(--border-subtle)',
+                                    background: isActive ? 'var(--bg-secondary)' : 'transparent',
+                                    border: '1px solid var(--border-primary)',
                                     cursor: 'pointer',
                                     textAlign: 'left'
                                 }}
@@ -127,7 +127,7 @@ const Settings = () => {
                                     width: '40px',
                                     height: '40px',
                                     borderRadius: '50%',
-                                    background: 'var(--bg-glass)',
+                                    background: 'var(--bg-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
@@ -160,7 +160,7 @@ const Settings = () => {
                                     padding: 'var(--space-4)',
                                     background: 'var(--bg-card)',
                                     borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border-subtle)'
+                                    border: '1px solid var(--border-primary)'
                                 }}>
                                     {loadingBlocks ? (
                                         <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
@@ -180,7 +180,7 @@ const Settings = () => {
                                                         alignItems: 'center',
                                                         gap: 'var(--space-3)',
                                                         padding: 'var(--space-3)',
-                                                        background: 'var(--bg-elevated)',
+                                                        background: 'var(--bg-secondary)',
                                                         borderRadius: 'var(--radius-sm)'
                                                     }}
                                                 >
@@ -220,7 +220,7 @@ const Settings = () => {
                                     padding: 'var(--space-4)',
                                     background: 'var(--bg-card)',
                                     borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border-subtle)'
+                                    border: '1px solid var(--border-primary)'
                                 }}>
                                     <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>Account Privacy</h3>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -262,7 +262,7 @@ const Settings = () => {
                                     padding: 'var(--space-6)',
                                     background: 'var(--bg-card)',
                                     borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border-subtle)',
+                                    border: '1px solid var(--border-primary)',
                                     textAlign: 'center'
                                 }}>
                                     <p style={{ color: 'var(--text-muted)' }}>

@@ -20,12 +20,13 @@ export const supabase: SupabaseClient = createClient(
             flowType: 'pkce'
         },
         global: {
+            headers: { 'x-application-name': 'shopfollow' },
             fetch: (url, options = {}) => {
-                // Don't use AbortController with a timeout that can cause issues
-                return fetch(url, {
-                    ...options,
-                    // Ensure we don't hit abort issues with slow connections  
-                });
+                const newOptions = { ...options } as RequestInit;
+                if (newOptions.signal) {
+                    delete newOptions.signal;
+                }
+                return fetch(url, newOptions);
             }
         }
     }

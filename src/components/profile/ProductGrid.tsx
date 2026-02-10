@@ -47,7 +47,7 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
                         aspectRatio: '1',
                         overflow: 'hidden',
                         borderRadius: 'var(--radius-sm)',
-                        background: 'var(--bg-elevated)',
+                        background: 'var(--bg-secondary)',
                         border: 'none',
                         padding: 0,
                         cursor: 'pointer'

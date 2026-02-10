@@ -159,8 +159,8 @@ const ReportModal = ({
                                     gap: 'var(--space-3)',
                                     padding: 'var(--space-3) var(--space-4)',
                                     borderRadius: 'var(--radius-md)',
-                                    border: `1px solid ${selectedReason === reason.value ? 'var(--color-primary)' : 'var(--border-subtle)'}`,
-                                    background: selectedReason === reason.value ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                    border: `1px solid ${selectedReason === reason.value ? 'var(--color-primary)' : 'var(--border-primary)'}`,
+                                    background: selectedReason === reason.value ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                     cursor: 'pointer',
                                     textAlign: 'left'
                                 }}
@@ -207,8 +207,8 @@ const ReportModal = ({
                                 width: '100%',
                                 padding: 'var(--space-3)',
                                 borderRadius: 'var(--radius-md)',
-                                background: 'var(--bg-elevated)',
-                                border: '1px solid var(--border-subtle)',
+                                background: 'var(--bg-secondary)',
+                                border: '1px solid var(--border-primary)',
                                 color: 'var(--text-primary)',
                                 fontSize: '14px',
                                 resize: 'none',

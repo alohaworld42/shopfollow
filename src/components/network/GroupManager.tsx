@@ -80,7 +80,7 @@ const GroupManager = ({ groups, onCreate, onUpdate, onDelete }: GroupManagerProp
                                         width: '44px',
                                         height: '44px',
                                         borderRadius: '50%',
-                                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)',
+                                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center'
@@ -153,8 +153,8 @@ const GroupManager = ({ groups, onCreate, onUpdate, onDelete }: GroupManagerProp
                                 width: '100%',
                                 padding: 'var(--space-4)',
                                 borderRadius: 'var(--radius-md)',
-                                background: 'var(--bg-elevated)',
-                                border: '1px solid var(--border-subtle)',
+                                background: 'var(--bg-secondary)',
+                                border: '1px solid var(--border-primary)',
                                 color: 'var(--text-primary)',
                                 fontSize: '15px',
                                 outline: 'none'

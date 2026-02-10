@@ -16,11 +16,21 @@ export const Sidebar = () => {
     const { user } = useAuth();
 
     return (
-        <aside className="desktop-sidebar glass-panel">
+        <aside className="desktop-sidebar">
             <div className="sidebar-header">
                 <Link to="/" className="sidebar-logo">
-                    <span className="logo-icon">🛍️</span>
-                    <span className="logo-text">ShopFollow</span>
+                    <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        background: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <ShoppingBag size={16} color="white" strokeWidth={2} />
+                    </div>
+                    <span>ShopFollow</span>
                 </Link>
             </div>
 
@@ -31,7 +41,7 @@ export const Sidebar = () => {
                         to={path}
                         className={`sidebar-nav-item ${location.pathname === path ? 'active' : ''}`}
                     >
-                        <Icon size={22} />
+                        <Icon size={20} strokeWidth={1.5} />
                         <span>{label}</span>
                     </Link>
                 ))}
@@ -39,7 +49,7 @@ export const Sidebar = () => {
 
             <div className="sidebar-actions">
                 <Link to="/profile" className="sidebar-create-btn">
-                    <Plus size={20} />
+                    <Plus size={18} />
                     <span>New Post</span>
                 </Link>
             </div>
@@ -47,7 +57,7 @@ export const Sidebar = () => {
             {user && (
                 <div className="sidebar-footer">
                     <Link to="/settings" className="sidebar-settings">
-                        <Settings size={20} />
+                        <Settings size={18} strokeWidth={1.5} />
                         <span>Settings</span>
                     </Link>
                 </div>

@@ -73,7 +73,7 @@ const EditProductModal = ({
                             {product.storeName}
                         </p>
                         <span style={{
-                            background: 'var(--bg-glass)',
+                            background: 'var(--bg-secondary)',
                             padding: '4px 10px',
                             borderRadius: 'var(--radius-sm)',
                             fontSize: '13px',
@@ -104,8 +104,8 @@ const EditProductModal = ({
                                         gap: 'var(--space-4)',
                                         padding: 'var(--space-4)',
                                         borderRadius: 'var(--radius-md)',
-                                        border: `1px solid ${isActive ? 'var(--color-primary)' : 'var(--border-subtle)'}`,
-                                        background: isActive ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                        border: `1px solid ${isActive ? 'var(--color-primary)' : 'var(--border-primary)'}`,
+                                        background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                         cursor: 'pointer',
                                         textAlign: 'left'
                                     }}
@@ -140,7 +140,7 @@ const EditProductModal = ({
                                 fontSize: '14px',
                                 color: 'var(--text-muted)',
                                 padding: 'var(--space-4)',
-                                background: 'var(--bg-elevated)',
+                                background: 'var(--bg-secondary)',
                                 borderRadius: 'var(--radius-md)'
                             }}>
                                 No groups available. Create one in the Network tab first.
@@ -153,8 +153,8 @@ const EditProductModal = ({
                                     width: '100%',
                                     padding: 'var(--space-4)',
                                     borderRadius: 'var(--radius-md)',
-                                    background: 'var(--bg-elevated)',
-                                    border: '1px solid var(--border-subtle)',
+                                    background: 'var(--bg-secondary)',
+                                    border: '1px solid var(--border-primary)',
                                     color: 'var(--text-primary)',
                                     fontSize: '15px',
                                     outline: 'none'
@@ -194,7 +194,7 @@ const EditProductModal = ({
                     display: 'flex',
                     gap: 'var(--space-3)',
                     paddingTop: 'var(--space-4)',
-                    borderTop: '1px solid var(--border-subtle)'
+                    borderTop: '1px solid var(--border-primary)'
                 }}>
                     <Button
                         variant="danger"

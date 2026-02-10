@@ -54,7 +54,7 @@ const UserCard = ({ user, isFollowing, onFollow, onUnfollow, onClick }: UserCard
                                 height: '36px',
                                 minHeight: '36px',
                                 padding: '0 16px',
-                                background: 'var(--bg-elevated)',
+                                background: 'var(--bg-secondary)',
                                 color: 'var(--text-muted)',
                                 fontSize: '13px',
                                 fontWeight: 600,

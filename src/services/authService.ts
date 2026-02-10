@@ -103,7 +103,10 @@ export async function signInWithGoogle(): Promise<void> {
         }
     });
 
-    if (error) throw error;
+    if (error) {
+        console.error('Google Sign-In Error:', error);
+        throw error;
+    }
 }
 
 // Sign in with Apple OAuth
@@ -119,7 +122,10 @@ export async function signInWithApple(): Promise<void> {
         }
     });
 
-    if (error) throw error;
+    if (error) {
+        console.error('Apple Sign-In Error:', error);
+        throw error;
+    }
 }
 
 // Resend email verification
@@ -171,11 +177,16 @@ export function onAuthStateChange(callback: (user: Profile | null) => void) {
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-            const profile = await getCurrentUser();
-            callback(profile);
-        } else {
-            callback(null);
+        try {
+            if (session?.user) {
+                const profile = await getCurrentUser();
+                callback(profile);
+            } else {
+                callback(null);
+            }
+        } catch (error) {
+            console.error('Auth state change listener error:', error);
+            // Don't throw here, as it can cause sign methods to reject
         }
     });
 
@@ -260,4 +271,44 @@ export async function unfollowUser(userId: string, targetUserId: string): Promis
         .eq('following_id', targetUserId);
 
     if (error) throw error;
+}
+
+/**
+ * Helper to parse auth errors and return user-friendly messages
+ */
+export function getAuthErrorMessage(error: unknown): string {
+    console.error('Auth Error:', error);
+
+    if (!error) return 'An unknown error occurred';
+
+    // Handle AbortError (often network interruption or Supabase client timeout)
+    if ((error as any).name === 'AbortError' || (error as any).message?.includes('AbortError')) {
+        return 'Connection was interrupted. Please try again.';
+    }
+
+    // Handle specific Supabase error codes/messages
+    const msg = (error as any).message || (error as any).msg || (error as any).error_description || JSON.stringify(error);
+
+    if (msg.includes('Unsupported provider') || (error as any).code === 400 && (error as any).error_code === 'validation_failed') {
+        return 'This sign-in method is not enabled in the backend.';
+    }
+
+    if (msg.includes('Invalid login credentials')) {
+        return 'Incorrect email or password. Please try again.';
+    }
+
+    if (msg.includes('Email not confirmed')) {
+        return 'Please check your inbox and verify your email address.';
+    }
+
+    if (msg.includes('User already registered')) {
+        return 'An account with this email already exists. Try signing in.';
+    }
+
+    if (msg.includes('rate limit')) {
+        return 'Too many requests. Please wait a moment and try again.';
+    }
+
+    // Default to strict message if available, otherwise generic
+    return (error as any).message || 'An unexpected error occurred. Please try again.';
 }

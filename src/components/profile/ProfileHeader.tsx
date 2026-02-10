@@ -115,7 +115,7 @@ const ProfileHeader = ({ user, productCount, totalSpending }: ProfileHeaderProps
                         width: '56px',
                         height: '56px',
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)',
+                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'

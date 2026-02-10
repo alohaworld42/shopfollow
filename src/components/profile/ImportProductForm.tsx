@@ -27,8 +27,8 @@ const inputStyle: React.CSSProperties = {
     padding: 'var(--space-4)',
     paddingLeft: '44px',
     borderRadius: 'var(--radius-md)',
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--border-subtle)',
+    background: 'var(--bg-secondary)',
+    border: '1px solid var(--border-primary)',
     color: 'var(--text-primary)',
     fontSize: '15px',
     outline: 'none'
@@ -194,7 +194,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                         </Button>
                     </div>
                     {/* Divider */}
-                    <div style={{ height: '1px', background: 'var(--border-subtle)', marginTop: 'var(--space-6)' }} />
+                    <div style={{ height: '1px', background: 'var(--border-primary)', marginTop: 'var(--space-6)' }} />
                 </div>
 
                 {/* 2. Fetched Details */}
@@ -229,7 +229,7 @@ const ImportProductForm = ({ isOpen, onClose, onSubmit, groups }: ImportProductF
                                     objectFit: 'contain',
                                     borderRadius: 'var(--radius-md)',
                                     background: 'var(--bg-subtle)',
-                                    border: '1px solid var(--border-subtle)'
+                                    border: '1px solid var(--border-primary)'
                                 }}
                                 onError={(e) => (e.target as HTMLImageElement).src = 'https://placehold.co/400x400?text=No+Image'}
                             />
