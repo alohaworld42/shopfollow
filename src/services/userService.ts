@@ -64,7 +64,6 @@ export async function getUser(uid: string): Promise<User | null> {
         .from('profiles')
         .select('*')
         .eq('id', uid)
-        .eq('id', uid)
         .maybeSingle();
 
     if (error || !data) return null;
@@ -111,7 +110,6 @@ export async function followUser(currentUserId: string, targetUserId: string): P
     const { data: target } = await supabase
         .from('profiles')
         .select('is_private')
-        .eq('id', targetUserId)
         .eq('id', targetUserId)
         .maybeSingle();
 

@@ -46,17 +46,24 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
         if (prodError) throw prodError;
         const productIds = products?.map(p => p.id) || [];
 
-        // Get total likes on user's products
-        const { count: totalLikes } = await supabase
-            .from('likes')
-            .select('*', { count: 'exact', head: true })
-            .in('product_id', productIds.length > 0 ? productIds : ['none']);
+        // Skip likes/comments queries if user has no products
+        let totalLikes = 0;
+        let totalComments = 0;
 
-        // Get total comments on user's products
-        const { count: totalComments } = await supabase
-            .from('comments')
-            .select('*', { count: 'exact', head: true })
-            .in('product_id', productIds.length > 0 ? productIds : ['none']);
+        if (productIds.length > 0) {
+            const [likesResult, commentsResult] = await Promise.all([
+                supabase
+                    .from('likes')
+                    .select('*', { count: 'exact', head: true })
+                    .in('product_id', productIds),
+                supabase
+                    .from('comments')
+                    .select('*', { count: 'exact', head: true })
+                    .in('product_id', productIds)
+            ]);
+            totalLikes = likesResult.count || 0;
+            totalComments = commentsResult.count || 0;
+        }
 
         // Get followers count
         const { count: followers } = await supabase

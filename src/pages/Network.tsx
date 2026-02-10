@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Users,
     Search as SearchIcon,
@@ -228,9 +228,9 @@ const Network = () => {
         if (activeTab === 'following') loadFollowing();
     };
 
-    useState(() => {
+    useEffect(() => {
         handleRefresh();
-    });
+    }, []);
 
     const handleFollow = async (targetId: string) => {
         await followUser(targetId);

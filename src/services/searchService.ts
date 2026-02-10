@@ -3,7 +3,6 @@
  */
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { Product, User } from '../types';
-import { getProductLikes, getProductComments, getProductSaves } from './productService';
 
 // Type for profile join data
 interface ProfileData {
@@ -64,13 +63,8 @@ export async function searchProducts(query: string, category?: string | null, li
         return [];
     }
 
-    return Promise.all(data.map(async (row) => {
+    return data.map((row) => {
         const profile = getProfileData(row.profiles);
-        const [likes, comments, saves] = await Promise.all([
-            getProductLikes(row.id),
-            getProductComments(row.id),
-            getProductSaves(row.id)
-        ]);
 
         return {
             id: row.id,
@@ -91,12 +85,12 @@ export async function searchProducts(query: string, category?: string | null, li
             groupId: row.group_id,
             category: row.category,
             brand: row.brand,
-            likes,
-            comments,
-            saves,
+            likes: [],
+            comments: [],
+            saves: [],
             createdAt: new Date(row.created_at)
         };
-    }));
+    });
 }
 
 // Search users by display name

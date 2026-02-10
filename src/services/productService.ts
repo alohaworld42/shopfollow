@@ -273,7 +273,7 @@ export async function addComment(productId: string, userId: string, text: string
         throw new Error('Supabase not configured');
     }
 
-    // Call moderation Edge Function first
+    // Call moderation Edge Function first (best-effort, non-blocking)
     let moderationStatus: 'approved' | 'flagged' | 'rejected' = 'approved';
     let moderationScore = 0;
 
@@ -292,11 +292,12 @@ export async function addComment(productId: string, userId: string, text: string
             }
         }
     } catch (modError) {
-        // If moderation fails, allow comment but log error
-        console.error('Moderation check failed:', modError);
+        // If moderation fails for any reason (401, network, etc.), allow the comment
+        // Only re-throw if it was explicitly rejected
         if ((modError as Error).message?.includes('rejected')) {
             throw modError;
         }
+        console.warn('Moderation check skipped:', (modError as Error).message);
     }
 
     // Insert comment with moderation status

@@ -100,29 +100,12 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       {/* Redirects */}
-      <Route path="/shop" element={<Navigate to="/search" replace />} />
-      <Route path="/inbox" element={<Navigate to="/purchases" replace />} />
-
-      {/* Demo mode - auto login */}
-      <Route path="/demo" element={<DemoRedirect />} />
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/welcome" replace />} />
     </Routes>
   );
 }
-
-// Demo redirect component
-const DemoRedirect = () => {
-  const { signIn } = useAuth();
-
-  // Auto sign in with demo credentials
-  signIn('demo@cartconnect.app', 'demo').catch(() => {
-    // Already in demo mode via AuthContext
-  });
-
-  return <Navigate to="/" replace />;
-};
 
 function App() {
   return (
